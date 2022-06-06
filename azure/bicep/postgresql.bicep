@@ -17,7 +17,7 @@ param keyVaultName string
 param privateDNSZoneName string = 'privatelink.postgres.database.azure.com'
 
 @description('Azure database for PostgreSQL compute capacity in vCores (2,4,8,16,32)')
-param skuCapacity int = 2
+param skuCapacity int = 4
 
 @description('Azure database for PostgreSQL sku name ')
 param skuName string = 'GP_Gen5_2'
