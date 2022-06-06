@@ -4,22 +4,23 @@
   "parameters": {
     "allowedCidrRanges": {
       "value": [
+         ""
       ]
     },
     "oasisServerAdminPassword": {
       "value": ""
     },
     "platformNodeVm": {
-      "value": "Standard_B2ms"
+      "value": "Standard_F4s"
     },
     "workerNodesVm": {
-      "value": "Standard_B2s"
+      "value": "Standard_E16_v3"
     },
     "workerNodesMaxCount": {
-      "value": 2
+      "value": 10
     },
     "oasisStorageAccountSKU": {
-      "value": "Standard_LRS"
+      "value": "Premium_LRS"
     },
     "clusterName": {
       "value": "oasis-enterprise"
