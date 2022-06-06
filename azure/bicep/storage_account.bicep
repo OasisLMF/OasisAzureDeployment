@@ -51,10 +51,10 @@ resource sharedFs 'Microsoft.Storage/storageAccounts@2021-08-01' = {
     sku: {
         name: oasisStorageAccountSKU
     }
-    kind: 'StorageV2'
+    kind: 'FileStorage'
     tags: tags
     properties: {
-        accessTier: 'Hot'
+        accessTier: 'Premium'
         allowBlobPublicAccess: false
         supportsHttpsTrafficOnly: true
         minimumTlsVersion: 'TLS1_2'
