@@ -14,7 +14,7 @@
       "value": "Standard_F4s"
     },
     "workerNodesVm": {
-      "value": "Standard_E16_v3"
+      "value": "Standard_E4_v3"
     },
     "workerNodesMaxCount": {
       "value": 10
