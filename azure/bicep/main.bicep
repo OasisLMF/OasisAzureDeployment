@@ -173,6 +173,23 @@ module storageAccount 'storage_account.bicep' = {
   ]
 }
 
+
+module blobAccount 'blob_account.bicep' = {
+  name: 'blobAccount'
+  params: {
+    location: location
+    keyVaultName: keyVault.outputs.keyVaultName
+    tags: tags
+    subnetId: vnet.outputs.subnetId
+    allowedCidrRanges: allowedCidrRanges
+  }
+
+  dependsOn: [
+    vnet
+  ]
+}
+
+
 module aks 'aks.bicep' = {
   name: 'aksDeploy'
   params: {
@@ -191,6 +208,7 @@ module aks 'aks.bicep' = {
 
   dependsOn: [
     storageAccount
+    blobAccount
   ]
 }
 
@@ -208,8 +226,16 @@ module registry 'registry.bicep' = {
   ]
 }
 
+// AzureFiles Storage outputs 
 output oasisFsNameSecretName string = storageAccount.outputs.oasisFsNameSecretName
 output oasisFsKeySecretName string = storageAccount.outputs.oasisFsKeySecretName
 output oasisFileShareName string = storageAccount.outputs.oasisFileShareName
 output modelsFileShareName string = storageAccount.outputs.modelsFileShareName
+
+// BlockBlob Storage outputs
+output oasisBlobNameSecretName string = blobAccount.outputs.oasisBlobNameSecretName
+output oasisBlobKeySecretName string = blobAccount.outputs.oasisBlobKeySecretName
+output serverBlobContainerName string = blobAccount.outputs.serverBlobContainerName
+output modelsBlobContainerName string = blobAccount.outputs.modelsBlobContainerName
+
 output aksCluster object = aks.outputs.aksCluster

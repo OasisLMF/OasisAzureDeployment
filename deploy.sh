@@ -475,7 +475,6 @@ case "$deploy_type" in
         sed 's/^COPY/RUN true\nCOPY/g' < Dockerfile.api_server | \
             docker build -f - -t "${acr}/coreoasis/api_server:dev" .
       fi
-
       docker push "${acr}/coreoasis/api_server:dev"
     ;;
     "worker-controller")
@@ -558,6 +557,9 @@ case "$deploy_type" in
     oasis_fs_account_name="$(get_secret oasisfs-name)"
     oasis_fs_account_key="$(get_secret oasisfs-key)"
 
+    oasis_blob_account_name="$(get_secret oasisblob-name)"
+    oasis_blob_account_key="$(get_secret oasisblob-key)"
+
     key_vault_name="$(get_key_vault_name)"
     key_vault_tenant_id="$(get_key_vault_tenant_id)"
     aks_identity_client_id="$(get_aks_identity_client_id)"
@@ -569,6 +571,8 @@ case "$deploy_type" in
     helm_deploy "${SCRIPT_DIR}/settings/helm/platform-values.yaml" "${OASIS_PLATFORM_DIR}/kubernetes/charts/oasis-platform/" "$HELM_PLATFORM_NAME" \
       --set "azure.storageAccounts.oasisfs.accountName=${oasis_fs_account_name}" \
       --set "azure.storageAccounts.oasisfs.accountKey=${oasis_fs_account_key}" \
+      --set "azure.storageAccounts.serverblobs.accountName=${oasis_blob_account_name}" \
+      --set "azure.storageAccounts.serverblobs.accountKey=${oasis_blob_account_key}" \
       --set "azure.tenantId=${key_vault_tenant_id}" \
       --set "azure.secretProvider.keyvaultName=${key_vault_name}" \
       --set "azure.secretProvider.userAssignedIdentityClientID=${aks_identity_client_id}" \
