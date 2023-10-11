@@ -150,6 +150,23 @@ module storageAccount 'storage_account.bicep' = {
   ]
 }
 
+
+module blobAccount 'blob_account.bicep' = {
+  name: 'blobAccount'
+  params: {
+    location: location
+    keyVaultName: keyVault.outputs.keyVaultName
+    tags: tags
+    subnetId: vnet.outputs.subnetId
+    allowedCidrRanges: allowedCidrRanges
+  }
+
+  dependsOn: [
+    vnet
+  ]
+}
+
+
 module aks 'aks.bicep' = {
   name: 'aksDeploy'
   params: {
@@ -168,6 +185,7 @@ module aks 'aks.bicep' = {
 
   dependsOn: [
     storageAccount
+    blobAccount
   ]
 }
 
