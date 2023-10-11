@@ -2,7 +2,7 @@
 param location string = resourceGroup().location
 
 @description('Blob Storage account name')
-param oasisBlobStorageAccountName string = substring('oasis${uniqueString(resourceGroup().id)}', 0, 17)
+param oasisBlobStorageAccountName string = substring('blob${uniqueString(resourceGroup().id)}', 0, 17)
 
 @description('Azure storage SKU type')
 @allowed([
@@ -26,11 +26,11 @@ param oasisBlobNameSecretName string = 'oasisblob-name'
 @description('Name of secret to store key to storage account')
 param oasisBlobKeySecretName string = 'oasisblob-key'
 
-@description('Shared files name for oasis shared file system')
-param oasisBlobName string = 'oasisblob'
+@description('Blob Container name for oasis shared file system')
+param serverContainerName string = 'serverblobs'
 
-//@description('Shared files name for model files')
-//param modelsFileShareName string = 'models'
+@description('Blob Container name for model files')
+param modelsContainerName string = 'modelblobs'
 
 @description('Name of key vault')
 param keyVaultName string
@@ -46,7 +46,7 @@ var defaultNetworkAction = allAccess ? 'Allow' : 'Deny'
 var allowedCidrRangesCleaned = allAccess ? [] : allowedCidrRanges
 
 
-resource blobFs 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+resource blobFs 'Microsoft.Storage/storageAccounts@2021-09-01' = {
     name: oasisBlobStorageAccountName
     location: location
     sku: {
@@ -98,17 +98,16 @@ resource blobFsNameSecret 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview'
   }
 }
 
-
-resource blobFsShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-04-01' = {
-  name: '${blobFs}/default/${oasisBlobName}'
+resource serverContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
+  name: '${blobFs.name}/default/${serverContainerName}'
 }
 
-//resource modelsFsShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-04-01' = {
-//  name: '${blobFs}/default/${modelsFileShareName}'
-//}
+resource modelsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
+  name: '${blobFs.name}/default/${modelsContainerName}'
+}
 
 output oasisBlobNameSecretName string = oasisBlobNameSecretName
 output oasisBlobKeySecretName string = oasisBlobKeySecretName
-output oasisBlobName string = oasisBlobName
-//output modelsFileShareName string = modelsFileShareName
+output serverBlobContainerName string = serverContainerName
+output modelsBlobContainerName string = modelsContainerName
 
