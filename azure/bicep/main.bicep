@@ -49,6 +49,7 @@ param nodeResourceGroup string
 @description('Current user object id - if set will add access for this user to the key vault')
 param currentUserObjectId string = ''
 
+@secure()
 @description('Password for admin user')
 param oasisServerAdminPassword string
 
@@ -112,6 +113,7 @@ module oasisPostgresqlDb 'postgresql.bicep' = {
     oasisServerAdminPassword: oasisServerAdminPassword
     vnetName: vnetName
     subnetName: subnetName
+    userAssignedIdentity: identities.outputs.userAssignedIdentity
   }
 
   dependsOn: [

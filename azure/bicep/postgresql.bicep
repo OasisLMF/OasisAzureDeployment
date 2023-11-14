@@ -22,8 +22,11 @@ param privateDNSZoneName string = 'privatelink.postgres.database.azure.com'
 @description('Azure database for PostgreSQL sku name ')
 param skuName string = 'GP_Gen5_2'
 
-@description('Azure database for PostgreSQL Sku Size. Valid storage sizes range from minimum of 5120 MB and additional increments of 1024 MB up to maximum of 1048576 MB."}]}')
-param skuSizeMB int = 5120
+@description('The user assigned identity that owns the key vault')
+param userAssignedIdentity object
+
+// @description('Azure database for PostgreSQL Sku Size. Valid storage sizes range from minimum of 5120 MB and additional increments of 1024 MB up to maximum of 1048576 MB."}]}')
+// param skuSizeMB int = 5120
 
 @description('Azure database for PostgreSQL pricing tier')
 @allowed([
@@ -33,8 +36,8 @@ param skuSizeMB int = 5120
 ])
 param skuTier string = 'GeneralPurpose' // 'GeneralPurpose'
 
-@description('Azure database for PostgreSQL sku family')
-param skuFamily string = 'Gen5'
+// @description('Azure database for PostgreSQL sku family')
+// param skuFamily string = 'Gen5'
 
 @description('PostgreSQL version')
 @allowed([
@@ -47,11 +50,11 @@ param skuFamily string = 'Gen5'
 ])
 param postgresqlVersion string = '11'
 
-@description('PostgreSQL Server backup retention days')
-param backupRetentionDays int = 7
+// @description('PostgreSQL Server backup retention days')
+// param backupRetentionDays int = 7
 
-@description('Geo-Redundant Backup setting')
-param geoRedundantBackup string = 'Disabled'
+// @description('Geo-Redundant Backup setting')
+// param geoRedundantBackup string = 'Disabled'
 
 @description('Name of database instance')
 param oasisServerName string = 'oasis-${uniqueString(resourceGroup().id)}'
@@ -77,6 +80,23 @@ param databaseNames array = [
 //   name: singleserverName
 // }
 
+module private_endpoint 'private_endpoint.bicep' = {
+  name: 'privateEndpointName'
+  params: {
+    privateEndpointName: 'private-postgresql-endpoint'
+    location: location
+    tags: tags
+    vnetName: vnetName
+    subnetName: subnetName
+    privateLinkServiceId: oasisPostgresqlServer.id
+    serverName: oasisPostgresqlServer.name
+    keyVaultName: keyVaultName
+    privateDNSZoneName: privateDNSZoneName
+    privateLinkGroupId: 'postgresqlServer'
+    secretHostName: 'oasis-db-server-host'
+  }
+}
+
 resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
   name: oasisServerName
   location: location
@@ -89,18 +109,37 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
     // family: skuFamily
   }
   identity: {
-    type: 'SystemAssigned'
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      name: userAssignedIdentity
+      location: location
+      // tags: {
+      //   value: {
+      //     'oasis-enterprise': true
+      // }
+      // }
+          
+    }
   }
   properties: {
     createMode: 'Default'
     version: postgresqlVersion
     administratorLogin: oasisServerAdminUsername
     administratorLoginPassword: oasisServerAdminPassword
-    storageProfile: {
-      storageMB: skuSizeMB
-      backupRetentionDays: backupRetentionDays
-      geoRedundantBackup: geoRedundantBackup
+    network: {
+      delegatedSubnetResourceId: virtualNetwork::databaseSubnet.id
+      privateDnsZoneArmResourceId: privateDnsZone.id
     }
+    storage: {
+      storageSizeGB: 128
+    }
+
+
+    // storageProfile: {
+    //   storageMB: skuSizeMB
+    //   backupRetentionDays: backupRetentionDays
+    //   geoRedundantBackup: geoRedundantBackup
+    // }
   }
 
 
@@ -110,7 +149,7 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
     name: 'allow-ip-addresses'
     properties: {
       startIpAddress: '0.0.0.0/0'
-      ensIpAddress: '0.0.0.0/0'      
+      endIpAddress: '0.0.0.0/0'      
     }
   }
 }
@@ -217,4 +256,48 @@ module privateEndpoint 'private_endpoint.bicep' = {
     secretHostName: 'oasis-db-server-host'
   }
 }
+
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' = {
+  name: '${vnetName}-vnet'
+  location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '10.0.0.0/16'
+      ]
+    }
+  }
+  resource databaseSubnet 'subnets' = {
+    name: 'database-subnet'
+    properties: {
+      addressPrefix: '10.0.0.0/24'
+      delegations: [
+        {
+          name: '${vnetName}-subnet-delegation'
+          properties: {
+            serviceName: 'Microsoft.DBforPostgreSQL/flexibleServers'
+          }
+        }
+      ]
+    }
+  }
+}
+
+resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+  name: '${privateDNSZoneName}-private.postgres.database.azure.com'
+  location: 'global'
+  resource vNetLink 'virtualNetworkLinks' = {
+    name: '${privateDNSZoneName}-link'
+    location: 'global'
+    properties: {
+      registrationEnabled: false
+      virtualNetwork: {
+        id: virtualNetwork.id
+      }      
+    }
+  }
+}
+
+
+
 
