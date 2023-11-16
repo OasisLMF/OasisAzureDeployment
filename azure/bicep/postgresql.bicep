@@ -2,16 +2,20 @@
 param location string = resourceGroup().location
 
 @description('Tags for the resources')
-param tags object
+param tags object = {
+  'oasis-enterprise': true
+}
 
 @description('The virtual network name')
-param vnetName string
+param vnetName string = 'devtester-vnet'
 
 @description('The name of the subnet')
-param subnetName string
+param subnetName string = 'devtester-sub'
 
 @description('Name of key vault')
-param keyVaultName string
+param keyVaultName string = 'devtester-vault'
+
+//param flexidentity string
 
 @description('Private DNS zone name. Will be used as <service>.<privateDNSZoneName>')
 param privateDNSZoneName string = 'privatelink.postgres.database.azure.com'
@@ -20,10 +24,10 @@ param privateDNSZoneName string = 'privatelink.postgres.database.azure.com'
 // param skuCapacity int = 2
 
 @description('Azure database for PostgreSQL sku name ')
-param skuName string = 'GP_Gen5_2'
+param skuName string = 'Standard_B1ms'
 
-@description('The user assigned identity that owns the key vault')
-param userAssignedIdentity object
+// @description('The user assigned identity that owns the key vault')
+// param userAssignedIdentity object
 
 // @description('Azure database for PostgreSQL Sku Size. Valid storage sizes range from minimum of 5120 MB and additional increments of 1024 MB up to maximum of 1048576 MB."}]}')
 // param skuSizeMB int = 5120
@@ -41,14 +45,19 @@ param skuTier string = 'GeneralPurpose' // 'GeneralPurpose'
 
 @description('PostgreSQL version')
 @allowed([
-  '9.5'
-  '9.6'
-  '10'
-  '10.0'
-  '10.2'
+  // '9.5'
+  // '9.6'
+  // '10'
+  // '10.0'
+  // '10.2'
   '11'
+  '12'
+  '13'
+  '14'
 ])
 param postgresqlVersion string = '11'
+
+param userIdentity object = {objectId: '29aa57f9-cf19-4ce5-8876-91ed3a54e513'}
 
 // @description('PostgreSQL Server backup retention days')
 // param backupRetentionDays int = 7
@@ -65,6 +74,8 @@ param oasisServerAdminUsername string = 'oasisadmin'
 @secure()
 @description('Password for admin user')
 param oasisServerAdminPassword string
+
+//param oasisManagedIdentity string
 
 // @description('Oasis database name')
 // param oasisDbName string = 'oasis'
@@ -108,11 +119,15 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
     // size: '${skuSizeMB}'
     // family: skuFamily
   }
+
+  
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      name: userAssignedIdentity
-      location: location
+      '${userAssignedIdentity.id}': {
+        //principalId: userAssignedIdentity.properties.principalId
+        
+      }
       // tags: {
       //   value: {
       //     'oasis-enterprise': true
@@ -122,7 +137,7 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
     }
   }
   properties: {
-    createMode: 'Default'
+    //createMode: 'Default'
     version: postgresqlVersion
     administratorLogin: oasisServerAdminUsername
     administratorLoginPassword: oasisServerAdminPassword
@@ -142,33 +157,39 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
     // }
   }
 
+  
+
 
   resource database 'databases' = [ for name in databaseNames: {name: name}]
   
-  resource firewall 'firewallRules' = {
+  resource firewallAzure 'firewallRules' = {
     name: 'allow-ip-addresses'
     properties: {
-      startIpAddress: '0.0.0.0/0'
-      endIpAddress: '0.0.0.0/0'      
+      startIpAddress: '10.240.0.0/20'
+      endIpAddress: '10.240.255.255/20'      
     }
   }
 }
 
-// // Databases
-// resource oasisDb 'Microsoft.DBforPostgreSQL/servers/databases@2017-12-01' = {
-//   name: oasisDbName
-//   parent: oasisPostgresqlServer
+
+
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: 'db-userIdentity'
+  location: location
+  tags: tags
+}
+
+// resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+//   name: oasisManagedIdentity
+//   location: location
+//   tags: {
+//     value: {
+//       'oasis-enterprise': true
+//     }
+//   }
 // }
 
-// resource keycloakDb 'Microsoft.DBforPostgreSQL/servers/databases@2017-12-01' = {
-//   name: 'keycloak'
-//   parent: oasisPostgresqlServer
-// }
 
-// resource celeryDb 'Microsoft.DBforPostgreSQL/servers/databases@2017-12-01' = {
-//   name: 'celery'
-//   parent: oasisPostgresqlServer
-// }
 
 // Secrets
 resource oasisServerDbName 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = {
