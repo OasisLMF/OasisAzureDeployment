@@ -11,7 +11,6 @@ param availabilityZone string = ''
 param standbyAvailabilityZone string = ''
 param version string
 param tags object = {}
-param storageAutogrow string = 'Disabled'
 param backupRetentionDays int
 param geoRedundantBackup string
 param vmName string = 'Standard_D4s_v3'
@@ -52,10 +51,6 @@ param apiVersion string = '2022-12-01'
 param aadEnabled bool = false
 param aadData object = {}
 param authConfig object = {}
-param iopsTier string = ''
-param storageIops int = 0
-param throughput int = 0
-param storageType string = ''
 param guid string = newGuid()
 
 module privateDnsZoneDeployment './nested_privateDnsZoneDeployment.bicep' = if (vnetData.usePrivateDnsZone && vnetData.isNewPrivateDnsZone) {
@@ -87,16 +82,16 @@ module virtualNetworkLinkDeployment './nested_virtualNetworkLinkDeployment.bicep
   ]
 }
 
-resource server 'Microsoft.DBforPostgreSQL/flexibleServers@[parameters(\'apiVersion\')]' = {
+resource server 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
   location: location
   name: serverName
-  identity: (empty(identityData) ? json('null') : identityData)
+  identity: (empty(identityData) ? null : identityData)
   properties: {
     createMode: 'Default'
     administratorLogin: administratorLogin
     administratorLoginPassword: administratorLoginPassword
     availabilityZone: availabilityZone
-    Backup: {
+    backup: {
       backupRetentionDays: backupRetentionDays
       geoRedundantBackup: geoRedundantBackup
     }
@@ -104,18 +99,14 @@ resource server 'Microsoft.DBforPostgreSQL/flexibleServers@[parameters(\'apiVers
       mode: haEnabled
       standbyAvailabilityZone: standbyAvailabilityZone
     }
-    dataencryption: (empty(dataEncryptionData) ? json('null') : dataEncryptionData)
-    Network: (empty(vnetData.Network) ? json('null') : vnetData.Network)
-    Storage: {
-      StorageSizeGB: storageSizeGB
-      Type: (empty(storageType) ? json('null') : storageType)
-      Autogrow: storageAutogrow
-      tier: (empty(iopsTier) ? json('null') : iopsTier)
-      Iops: ((storageIops == 0) ? json('null') : storageIops)
-      Throughput: ((throughput == 0) ? json('null') : throughput)
+    dataEncryption: (empty(dataEncryptionData) ? null : dataEncryptionData)
+    network: (empty(vnetData.Network) ? null : vnetData.Network)
+    storage: {
+      storageSizeGB: storageSizeGB
+      
     }
     version: version
-    authConfig: (empty(authConfig) ? json('null') : authConfig)
+    authConfig: (empty(authConfig) ? null : authConfig)
   }
   sku: {
     name: vmName
