@@ -47,12 +47,10 @@ param vnetData object = {
   linkVirtualNetwork: false
   Network: {}
 }
-//param virtualNetworkDeploymentName string
-//param virtualNetworkLinkDeploymentName string
-//param privateDnsZoneDeploymentName string
+
 param identityData object = {}
 param dataEncryptionData object = {}
-param apiVersion string = '2022-12-01'
+param apiVersion string = '14'
 param aadEnabled bool = false
 param aadData object = {}
 param authConfig object = {}
@@ -60,7 +58,13 @@ param guid string = newGuid()
 @description('Name of key vault')
 param keyVaultName string = 'oasisVault'
 
-module privateDnsZoneDeployment './nested_privateDnsZoneDeployment.bicep' = if (vnetData.usePrivateDnsZone && vnetData.isNewPrivateDnsZone) {
+
+param virtualNetworkDeploymentName string
+param virtualNetworkLinkDeploymentName string
+param privateDnsZoneDeploymentName string
+
+
+module privateDnsZoneDeployment '../../portal_templates/nested_privateDnsZoneDeployment.bicep' = if (vnetData.usePrivateDnsZone && vnetData.isNewPrivateDnsZone) {
   name: privateDnsZoneDeploymentName
   scope: resourceGroup(vnetData.privateDnsSubscriptionId, vnetData.privateDnsResourceGroup)
   params: {
@@ -68,7 +72,7 @@ module privateDnsZoneDeployment './nested_privateDnsZoneDeployment.bicep' = if (
   }
 }
 
-module virtualNetworkDeployment './nested_virtualNetworkDeployment.bicep' = if (vnetData.isNewVnet || vnetData.subnetNeedsUpdate) {
+module virtualNetworkDeployment '../../portal_templates/nested_virtualNetworkDeployment.bicep' = if (vnetData.isNewVnet || vnetData.subnetNeedsUpdate) {
   name: virtualNetworkDeploymentName
   scope: resourceGroup(vnetData.subscriptionId, vnetData.virtualNetworkResourceGroupName)
   params: {
@@ -77,7 +81,7 @@ module virtualNetworkDeployment './nested_virtualNetworkDeployment.bicep' = if (
   }
 }
 
-module virtualNetworkLinkDeployment './nested_virtualNetworkLinkDeployment.bicep' = if (vnetData.usePrivateDnsZone && vnetData.linkVirtualNetwork) {
+module virtualNetworkLinkDeployment '../../portal_templates/nested_virtualNetworkLinkDeployment.bicep' = if (vnetData.usePrivateDnsZone && vnetData.linkVirtualNetwork) {
   name: virtualNetworkLinkDeploymentName
   scope: resourceGroup(vnetData.privateDnsSubscriptionId, vnetData.privateDnsResourceGroup)
   params: {
@@ -88,6 +92,18 @@ module virtualNetworkLinkDeployment './nested_virtualNetworkLinkDeployment.bicep
     virtualNetworkDeployment
   ]
 }
+
+/**
+**/
+
+
+
+
+
+
+
+
+
 
 resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
   location: location
@@ -125,6 +141,8 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
   ]
 }
 
+
+/**
 module addAdmins_guid './nested_addAdmins_guid.bicep' = if (aadEnabled) {
   name: 'addAdmins-${guid}'
   params: {
@@ -136,6 +154,21 @@ module addAdmins_guid './nested_addAdmins_guid.bicep' = if (aadEnabled) {
     oasisPostgresqlServer
   ]
 } 
+*/
+
+
+param serverName string
+
+resource serverName_aadData_objectId 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = { 
+  name: '${serverName}/${aadData.objectId}'
+  properties: {
+    tenantId: aadData.tenantId
+    principalName: aadData.principalName
+    principalType: aadData.principalType
+  }
+} 
+
+
 
 // module keyVault '../azure/bicep/key_vault.bicep' = {
 //   name: oasisVault
