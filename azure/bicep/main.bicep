@@ -56,6 +56,13 @@ param oasisServerAdminPassword string
 @description('Name of virtual network')
 param vnetName string = '${clusterName}-vnet'
 
+param privateDnsZoneDeployment string = 'oasisdns'
+
+param virtualNetworkDeploymentName string = 'oasis'
+
+param virtualNetworkLinkDeploymentName string ='oasislink'
+
+
 @description('Name of sub network')
 param subnetName string = '${clusterName}-snet'
 
@@ -107,10 +114,15 @@ module keyVault 'key_vault.bicep' = {
 module oasisPostgresqlDb 'postgresql.bicep' = {
   name: 'oasisPostgresqlDb'
   params: {
+    administratorLogin:'oasisadmin'
+    administratorLoginPassword: oasisServerAdminPassword
     location: location
     tags: tags
     keyVaultName: keyVault.outputs.keyVaultName
     oasisServerAdminPassword: oasisServerAdminPassword
+    privateDnsZoneDeploymentName: privateDnsZoneDeployment
+    virtualNetworkDeploymentName: virtualNetworkDeploymentName
+    virtualNetworkLinkDeploymentName: virtualNetworkLinkDeploymentName
     vnetName: vnetName
     subnetName: subnetName
     userAssignedIdentity: identities.outputs.userAssignedIdentity
