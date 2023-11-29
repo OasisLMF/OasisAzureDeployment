@@ -52,7 +52,7 @@ param identityData object = {}
 param dataEncryptionData object = {}
 param apiVersion string = '14'
 param aadEnabled bool = false
-param aadData object = {}
+//param aadData object = {"objectId": "", "tenantId":"", "principalName":"", "principalType":"",}
 param authConfig object = {}
 param guid string = newGuid()
 @description('Name of key vault')
@@ -154,7 +154,6 @@ module addAdmins_guid './nested_addAdmins_guid.bicep' = if (aadEnabled) {
     oasisPostgresqlServer
   ]
 } 
-*/
 
 
 param serverName string
@@ -168,6 +167,7 @@ resource serverName_aadData_objectId 'Microsoft.DBforPostgreSQL/flexibleServers/
   }
 } 
 
+*/
 
 
 // module keyVault '../azure/bicep/key_vault.bicep' = {

@@ -116,7 +116,6 @@ module keyVault 'key_vault.bicep' = {
 module oasisPostgresqlDb 'postgresql.bicep' = {
   name: 'oasisPostgresqlDb'
   params: {
-    serverName: 'test-flexi-postgres'
     administratorLogin:'oasisadmin'
     administratorLoginPassword: oasisServerAdminPassword
     location: location
@@ -126,6 +125,7 @@ module oasisPostgresqlDb 'postgresql.bicep' = {
     privateDnsZoneDeploymentName: privateDnsZoneDeployment
     virtualNetworkDeploymentName: virtualNetworkDeploymentName
     virtualNetworkLinkDeploymentName: virtualNetworkLinkDeploymentName
+ //   serverName
  //   vnetName: vnetName
  //   subnetName: subnetName
  //   userAssignedIdentity: identities.outputs.userAssignedIdentity
