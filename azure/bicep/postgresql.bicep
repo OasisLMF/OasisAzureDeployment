@@ -52,62 +52,12 @@ https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-netw
 */
 
 
-
-
-
-
-
-
-/*
-
-@description('Vnet data is an object which contains all parameters pertaining to vnet and subnet')
-param vnetData object = {
-  virtualNetworkName: 'testVnet'
-  virtualNetworkId: 'testVnetId'
-  subnetName: 'testSubnet'
-  subnetList: [
-    {
-      subnetName: 'testSubnet'
-      subnetNeedsUpdate: false
-      subnetProperties: {}
-    }
-  ]
-  virtualNetworkAddressPrefix: '10.0.0.0/16'
-  virtualNetworkResourceGroupName: resourceGroup().name
-  location: 'eastus2'
-  subscriptionId: subscription().subscriptionId
-  subnetProperties: {}
-  isNewVnet: false
-  subnetNeedsUpdate: false
-  usePrivateDnsZone: false
-  isNewPrivateDnsZone: false
-  privateDnsSubscriptionId: subscription().subscriptionId
-  privateDnsResourceGroup: resourceGroup().name
-  privateDnsZoneName: 'oasisPrivateDnsZone'
-  linkVirtualNetwork: false
-  Network: {}
-}
-
-*/
-
-
-
 resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: privateDNSZoneName
   location: 'global'
 }
 
 
-
-
-/*
-param vnetData object = {
-  Network: {
-    delegatedSubnetResourceId: subnetID
-    privateDnsZoneArmResourceId: privateDnsZoneId
-  }
-}  
-*/
 
 param identityData object = {}
 param dataEncryptionData object = {}
@@ -116,51 +66,9 @@ param aadEnabled bool = false
 
 param authConfig object = {}
 param guid string = newGuid()
+
 @description('Name of key vault')
 param keyVaultName string = 'oasisVault'
-
-
-/* 
-param virtualNetworkDeploymentName string
-param virtualNetworkLinkDeploymentName string
-param privateDnsZoneDeploymentName string
-
-
-module privateDnsZoneDeployment '../../portal_templates/nested_privateDnsZoneDeployment.bicep' = if (vnetData.usePrivateDnsZone && vnetData.isNewPrivateDnsZone) {
-  name: privateDnsZoneDeploymentName
-  scope: resourceGroup(vnetData.privateDnsSubscriptionId, vnetData.privateDnsResourceGroup)
-  params: {
-    vnetData: vnetData
-  }
-}
-
-module virtualNetworkDeployment '../../portal_templates/nested_virtualNetworkDeployment.bicep' = if (vnetData.isNewVnet || vnetData.subnetNeedsUpdate) {
-  name: virtualNetworkDeploymentName
-  scope: resourceGroup(vnetData.subscriptionId, vnetData.virtualNetworkResourceGroupName)
-  params: {
-    vnetData: vnetData
-    tags: tags
-  }
-}
-
-module virtualNetworkLinkDeployment '../../portal_templates/nested_virtualNetworkLinkDeployment.bicep' = if (vnetData.usePrivateDnsZone && vnetData.linkVirtualNetwork) {
-  name: virtualNetworkLinkDeploymentName
-  scope: resourceGroup(vnetData.privateDnsSubscriptionId, vnetData.privateDnsResourceGroup)
-  params: {
-    vnetData: vnetData
-  }
-  dependsOn: [
-    privateDnsZoneDeployment
-    virtualNetworkDeployment
-  ]
-}
-
-*/
-
-
-
-
-
 
 
 
@@ -183,8 +91,6 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
       standbyAvailabilityZone: standbyAvailabilityZone
     }
     dataEncryption: (empty(dataEncryptionData) ? null : dataEncryptionData)
-   // network: (empty(vnetData.Network) ? null : vnetData.Network)
-
     network: {
       delegatedSubnetResourceId: subnetID
       privateDnsZoneArmResourceId: privateDnsZone.id

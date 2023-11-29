@@ -94,8 +94,6 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   }
 }
 
-
-
 resource subnetDB 'Microsoft.Network/virtualNetworks/subnets@2022-09-01' = {
   parent: vnet
   name: subnetNameDB
@@ -104,7 +102,7 @@ resource subnetDB 'Microsoft.Network/virtualNetworks/subnets@2022-09-01' = {
     addressPrefix: '10.240.16.0/24'
     serviceEndpoints: [
       {
-        service: 'Microsoft.Storage'                 
+        service: 'Microsoft.Storage'
       }
     ]
     delegations: [
@@ -118,42 +116,6 @@ resource subnetDB 'Microsoft.Network/virtualNetworks/subnets@2022-09-01' = {
     ]
   }
 }
-
-
-/*
-
-
-                    {
-                        "name": "test-subnet",
-                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_postgres_sam_vnet_name'), 'test-subnet')]",
-                        "properties": {
-                            "addressPrefix": "10.240.16.0/24",
-                            "networkSecurityGroup": {
-                                "id": "[parameters('networkSecurityGroups_postgres_sam_vnet_sg_externalid')]"
-                            },
-                            "serviceEndpoints": [],
-                            "delegations": [
-                                {
-                                    "name": "Microsoft.DBforPostgreSQL.flexibleServers",
-                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_postgres_sam_vnet_name'), 'test-subnet'), '/delegations/Microsoft.DBforPostgreSQL.flexibleServers')]",
-                                    "properties": {
-                                        "serviceName": "Microsoft.DBforPostgreSQL/flexibleServers"
-                                    },
-                                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
-                                }
-                            ],
-                            "privateEndpointNetworkPolicies": "Disabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        },
-                        "type": "Microsoft.Network/virtualNetworks/subnets"
-                    }
-                ],
-                "virtualNetworkPeerings": [],
-                "enableDdosProtection": false
-            }
-
-*/
-
 
 output subnetId string = '${vnet.id}/subnets/${subnetName}'
 output subnetDBid string = '${vnet.id}/subnets/${subnetNameDB}'
