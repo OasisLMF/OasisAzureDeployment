@@ -124,7 +124,8 @@ module oasisPostgresqlDb 'postgresql.bicep' = {
     oasisServerAdminPassword: oasisServerAdminPassword
     vnetName: vnetName
     subnetName: subnetName
-    subnetID: vnet.outputs.subnetId
+    subnetID: vnet.outputs.subnetDBid
+    //subnetID: vnet.outputs.subnetId
     //privateDnsZoneDeploymentName: privateDnsZoneDeployment
     //virtualNetworkDeploymentName: virtualNetworkDeploymentName
     //virtualNetworkLinkDeploymentName: virtualNetworkLinkDeploymentName
