@@ -60,9 +60,9 @@ param vnetName string = '${clusterName}-vnet'
 
 
 // Testing params
-param privateDnsZoneDeployment string = 'oasisdns'
-param virtualNetworkDeploymentName string = 'oasis'
-param virtualNetworkLinkDeploymentName string ='oasislink'
+//param privateDnsZoneDeployment string = 'oasisdns'
+//param virtualNetworkDeploymentName string = 'oasis'
+//param virtualNetworkLinkDeploymentName string ='oasislink'
 
 
 @description('Name of sub network')
@@ -122,12 +122,11 @@ module oasisPostgresqlDb 'postgresql.bicep' = {
     tags: tags
     keyVaultName: keyVault.outputs.keyVaultName
     oasisServerAdminPassword: oasisServerAdminPassword
-    privateDnsZoneDeploymentName: privateDnsZoneDeployment
-    virtualNetworkDeploymentName: virtualNetworkDeploymentName
-    virtualNetworkLinkDeploymentName: virtualNetworkLinkDeploymentName
- //   serverName
- //   vnetName: vnetName
- //   subnetName: subnetName
+    vnetName: vnetName
+    subnetName: subnetName
+    //privateDnsZoneDeploymentName: privateDnsZoneDeployment
+    //virtualNetworkDeploymentName: virtualNetworkDeploymentName
+    //virtualNetworkLinkDeploymentName: virtualNetworkLinkDeploymentName
  //   userAssignedIdentity: identities.outputs.userAssignedIdentity
   }
 

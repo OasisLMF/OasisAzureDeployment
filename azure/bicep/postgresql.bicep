@@ -24,6 +24,32 @@ param oasisServerAdminPassword string
 param oasisDbName string = 'oasis'
 
 
+@description('The virtual network name')
+param vnetName string
+
+@description('The name of the subnet')
+param subnetName string
+
+@description('Private DNS zone name. Will be used as <service>.<privateDNSZoneName>')
+param privateDNSZoneName string = 'privatelink.postgres.database.azure.com'
+
+
+
+
+
+/*  Networking - sql server   (working notes)
+
+--> we currently use a private link to share access to the DB, the currernt MS docs says this on that method:\
+VNET injected resources cannot interact with Private Link by default. If you with to use Private Link for private networking see Azure Database for PostgreSQL Flexible Server Networking with Private Link - Preview
+
+
+https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-networking-private 
+https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-networking-private-link
+
+*/
+
+
+/*
 
 @description('Vnet data is an object which contains all parameters pertaining to vnet and subnet')
 param vnetData object = {
@@ -53,6 +79,15 @@ param vnetData object = {
   Network: {}
 }
 
+*/
+
+param vnetData object = {
+  Network: {
+    delegatedSubnetResourceId: subnetName
+    privateDnsZoneArmResourceId: 'string'
+  }
+}  
+
 param identityData object = {}
 param dataEncryptionData object = {}
 param apiVersion string = '14'
@@ -64,6 +99,7 @@ param guid string = newGuid()
 param keyVaultName string = 'oasisVault'
 
 
+/* 
 param virtualNetworkDeploymentName string
 param virtualNetworkLinkDeploymentName string
 param privateDnsZoneDeploymentName string
@@ -98,7 +134,7 @@ module virtualNetworkLinkDeployment '../../portal_templates/nested_virtualNetwor
   ]
 }
 
-
+*/
 
 
 
@@ -246,3 +282,19 @@ resource celeryDbUsername 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview'
 output privateLinkServiceId string = oasisPostgresqlServer.id
 output serverName string = oasisPostgresqlServer.name
 
+module privateEndpoint 'private_endpoint.bicep' = {
+  name: 'private-postgresql-endpoint'
+  params: {
+    privateEndpointName: 'private-postgresql-endpoint'
+    location: location
+    tags: tags
+    vnetName: vnetName
+    subnetName: subnetName
+    privateLinkServiceId: oasisPostgresqlServer.id
+    serverName: oasisPostgresqlServer.name
+    keyVaultName: keyVaultName
+    privateDNSZoneName: privateDNSZoneName
+    privateLinkGroupId: 'postgresqlServer'
+    secretHostName: 'oasis-db-server-host'
+  }
+}
