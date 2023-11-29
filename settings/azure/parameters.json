@@ -4,11 +4,10 @@
   "parameters": {
     "allowedCidrRanges": {
       "value": [
-      "188.74.82.185/32"
       ]
     },
     "oasisServerAdminPassword": {
-      "value": "4io3fm3eKrz6VUefGw4f"
+      "value": ""
     },
     "platformNodeVm": {
       "value": "Standard_B2ms"
@@ -23,7 +22,7 @@
       "value": "Standard_LRS"
     },
     "clusterName": {
-      "value": "postgres-sam"
+      "value": "oasis-enterprise"
     },
     "availabilityZones": {
       "value": []
