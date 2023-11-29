@@ -20,6 +20,11 @@ param oasisServerAdminUsername string = 'oasisadmin'
 @description('Password for admin user')
 param oasisServerAdminPassword string
 
+@description('Oasis database name')
+param oasisDbName string = 'oasis'
+
+
+
 @description('Vnet data is an object which contains all parameters pertaining to vnet and subnet')
 param vnetData object = {
   virtualNetworkName: 'testVnet'
@@ -52,7 +57,7 @@ param identityData object = {}
 param dataEncryptionData object = {}
 param apiVersion string = '14'
 param aadEnabled bool = false
-//param aadData object = {"objectId": "", "tenantId":"", "principalName":"", "principalType":"",}
+
 param authConfig object = {}
 param guid string = newGuid()
 @description('Name of key vault')
@@ -93,8 +98,6 @@ module virtualNetworkLinkDeployment '../../portal_templates/nested_virtualNetwor
   ]
 }
 
-/**
-**/
 
 
 
@@ -142,45 +145,38 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
 }
 
 
-/**
-module addAdmins_guid './nested_addAdmins_guid.bicep' = if (aadEnabled) {
-  name: 'addAdmins-${guid}'
-  params: {
-    serverName: oasisServerName
-    aadData: aadData
-    apiVersion: apiVersion
-  }
-  dependsOn: [
-    oasisPostgresqlServer
-  ]
-} 
 
 
-param serverName string
+// https://learn.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresql/flexibleservers/databases?pivots=deployment-language-bicep
 
-resource serverName_aadData_objectId 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = { 
-  name: '${serverName}/${aadData.objectId}'
+
+// Databases
+resource oasisDb 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
+  name: oasisDbName
+  parent: oasisPostgresqlServer
   properties: {
-    tenantId: aadData.tenantId
-    principalName: aadData.principalName
-    principalType: aadData.principalType
+    charset: 'UTF8'
+    collation: 'en_US.utf8'
   }
-} 
+}
+resource keycloakDb 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
+  name: 'keycloak'
+  parent: oasisPostgresqlServer
+  properties: {
+    charset: 'UTF8'
+    collation: 'en_US.utf8'
+  }
+}
+resource celeryDb 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
+  name: 'celery'
+  parent: oasisPostgresqlServer
+  properties: {
+    charset: 'UTF8'
+    collation: 'en_US.utf8'
+  }
+}
 
-*/
-
-
-// module keyVault '../azure/bicep/key_vault.bicep' = {
-//   name: oasisVault
-//   params: {
-//     keyVaultName: 
-//     tags: {
-//     }
-//     userAssignedIdentity: {
-//     }
-//   }
-// }
-
+// Secrets
 resource oasisServerDbName 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = {
   name: '${keyVaultName}/oasis-db-server-name'
   tags: tags
