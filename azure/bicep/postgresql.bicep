@@ -30,6 +30,9 @@ param vnetName string
 @description('The name of the subnet')
 param subnetName string
 
+@description('The name of the subnet')
+param subnetID string
+
 @description('Private DNS zone name. Will be used as <service>.<privateDNSZoneName>')
 param privateDNSZoneName string = 'privatelink.postgres.database.azure.com'
 
@@ -47,6 +50,12 @@ https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-netw
 https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-networking-private-link
 
 */
+
+
+
+
+
+
 
 
 /*
@@ -81,12 +90,24 @@ param vnetData object = {
 
 */
 
+
+
+resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+  name: privateDNSZoneName
+  location: 'global'
+}
+
+
+
+
+/*
 param vnetData object = {
   Network: {
-    delegatedSubnetResourceId: subnetName
-    privateDnsZoneArmResourceId: 'string'
+    delegatedSubnetResourceId: subnetID
+    privateDnsZoneArmResourceId: privateDnsZoneId
   }
 }  
+*/
 
 param identityData object = {}
 param dataEncryptionData object = {}
@@ -162,7 +183,12 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
       standbyAvailabilityZone: standbyAvailabilityZone
     }
     dataEncryption: (empty(dataEncryptionData) ? null : dataEncryptionData)
-    network: (empty(vnetData.Network) ? null : vnetData.Network)
+   // network: (empty(vnetData.Network) ? null : vnetData.Network)
+
+    network: {
+      delegatedSubnetResourceId: subnetID
+      privateDnsZoneArmResourceId: privateDnsZone.id
+    }
     storage: {
       storageSizeGB: storageSizeGB
       
@@ -176,7 +202,7 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
   }
   tags: tags
   dependsOn: [
-    virtualNetworkLinkDeployment
+    privateDnsZone
   ]
 }
 
