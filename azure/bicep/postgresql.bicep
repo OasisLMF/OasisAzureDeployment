@@ -52,7 +52,7 @@ https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-netw
 */
 
 
-resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+resource privateDnsZones 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: privateDNSZoneName
   location: 'global'
 }
@@ -93,7 +93,7 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
     dataEncryption: (empty(dataEncryptionData) ? null : dataEncryptionData)
     network: {
       delegatedSubnetResourceId: subnetID
-      privateDnsZoneArmResourceId: privateDnsZone.id
+      privateDnsZoneArmResourceId: privateDnsZones.id
     }
     storage: {
       storageSizeGB: storageSizeGB
@@ -108,7 +108,7 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
   }
   tags: tags
   dependsOn: [
-    privateDnsZone
+    privateDnsZones
   ]
 }
 
@@ -214,6 +214,7 @@ resource celeryDbUsername 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview'
 output privateLinkServiceId string = oasisPostgresqlServer.id
 output serverName string = oasisPostgresqlServer.name
 
+/*
 module privateEndpoint 'private_endpoint.bicep' = {
   name: 'private-postgresql-endpoint'
   params: {
@@ -230,3 +231,70 @@ module privateEndpoint 'private_endpoint.bicep' = {
     secretHostName: 'oasis-db-server-host'
   }
 }
+*/
+
+
+
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+  name: 'private-postgresql-endpoint'
+  location: location
+  tags: tags
+  properties: {
+     subnet: {
+       id: subnetID
+     }
+     privateLinkServiceConnections: [
+       {
+         name: 'db-connection'
+         properties: {
+           privateLinkServiceId: oasisPostgresqlServer.id
+           groupIds: [
+            'postgresqlServer'
+           ]
+         }
+       }
+     ]
+  }
+}
+
+resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  parent: privateDnsZones
+  name: '${privateDnsZones.name}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId('Microsoft.Network/VirtualNetworks', vnetName)
+    }
+  }
+}
+
+resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-08-01' = {
+  parent: privateEndpoint
+  name: 'default'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: privateDNSZoneName
+        properties: {
+          privateDnsZoneId: privateDnsZones.id
+        }
+      }
+    ]
+  }
+}
+
+resource oasisServerDbLinkName 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = {
+  name: '${keyVaultName}/oasis-db-server-host'
+  tags: tags
+  properties: {
+    attributes: {
+      enabled: true
+    }
+    value: '${oasisPostgresqlServer.name}.${privateDNSZoneName}'
+  }
+}
+
+
+
+
