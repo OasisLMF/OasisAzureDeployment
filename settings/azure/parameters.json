@@ -4,10 +4,11 @@
   "parameters": {
     "allowedCidrRanges": {
       "value": [
+        "2.221.93.21/32"
       ]
     },
     "oasisServerAdminPassword": {
-      "value": ""
+      "value": "yF50^4#xe£Iu=4T8JK"
     },
     "platformNodeVm": {
       "value": "Standard_B2ms"
