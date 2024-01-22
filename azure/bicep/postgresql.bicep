@@ -39,7 +39,6 @@ param privateDNSZoneName string = 'privatelink.postgres.database.azure.com'
 
 
 
-
 /*  Networking - sql server   (working notes)
 
 --> we currently use a private link to share access to the DB, the currernt MS docs says this on that method:\
@@ -62,7 +61,34 @@ resource privateDnsZones 'Microsoft.Network/privateDnsZones@2020-06-01' = {
 param identityData object = {}
 param dataEncryptionData object = {}
 param apiVersion string = '14'
-param aadEnabled bool = false
+param aadEnabled bool = true
+@description('Active Directory Authentication')
+@allowed([
+  'Disabled'
+  'Enabled'
+])
+param isActiveDirectoryAuthEnabled string = 'Enabled'
+
+@description('PostgreSQL Authentication')
+@allowed([
+  'Disabled'
+  'Enabled'
+])
+param isPostgreSQLAuthEnabled string = 'Enabled'
+
+@description('The object ID of the Azure AD admin.')
+param aadAdminObjectid string
+
+@description('Azure AD admin name')
+param aadAdminName string
+
+@description('Azure AD admin type')
+@allowed([
+  'User'
+  'Group'
+  'ServicePrincipal'
+])
+param aadAdminType string = 'ServicePrincipal'
 
 param authConfig object = {}
 param guid string = newGuid()
@@ -82,6 +108,22 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
     administratorLogin: administratorLogin
     administratorLoginPassword: administratorLoginPassword
     availabilityZone: availabilityZone
+    minimalTlsVersion: '1.2'
+    authConfig: {
+      activeDirectoryAuth: isActiveDirectoryAuthEnabled
+      passwordAuth: isPostgreSQLAuthEnabled
+      tenantId: subscription().tenantId
+    }
+    authentication: {
+      aadAuthentication: {
+        login: 'Enabled'
+        serverRoles: [
+          'admin'
+        ]
+      }
+      type: 'AzureADPassword'
+    }
+    disableLocalAuth: true
     backup: {
       backupRetentionDays: backupRetentionDays
       geoRedundantBackup: geoRedundantBackup
@@ -100,7 +142,6 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
       
     }
     version: version
-    authConfig: (empty(authConfig) ? null : authConfig)
   }
   sku: {
     name: vmName
@@ -110,6 +151,29 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
   dependsOn: [
     privateDnsZones
   ]
+}
+
+resource addAddUser 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = {
+  name: 'oasisServerName/${aadAdminObjectid}'
+  dependsOn: [
+    oasisPostgresqlServer
+  ]
+  properties: {
+    tenantId: subscription().tenantId
+    principalType: aadAdminType
+    principalName: aadAdminName
+  }
+}
+
+resource postgresqlActiveDirectoryAdmin 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = {
+  parent: oasisPostgresqlServer
+  name: 'activeDirectory'
+  properties: {
+    // administratorType: 'ActiveDirectory'
+    // login: 'PostgresAdmin'  //This is a Group in the Azure Directory
+    // sid: ''  //grab SID(object id) of the group
+    tenantId: subscription().tenantId  //tenant id
+  }
 }
 
 
