@@ -77,10 +77,10 @@ param isActiveDirectoryAuthEnabled string = 'Enabled'
 param isPostgreSQLAuthEnabled string = 'Enabled'
 
 @description('The object ID of the Azure AD admin.')
-param aadAdminObjectid string
+param aadAdminObjectid string = ''
 
 @description('Azure AD admin name')
-param aadAdminName string
+param aadAdminName string = 'oasisaadadmin'
 
 @description('Azure AD admin type')
 @allowed([
@@ -154,7 +154,7 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
 }
 
 resource addAddUser 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = {
-  name: 'oasisServerName/${aadAdminObjectid}'
+  name: concat(oasisServerName, '-', aadAdminObjectid) //'oasisServerName-${aadAdminObjectid}'
   dependsOn: [
     oasisPostgresqlServer
   ]
