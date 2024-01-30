@@ -154,7 +154,7 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
 }
 
 resource addAddUser 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = {
-  name: concat(oasisServerName, '-', aadAdminObjectid) //'oasisServerName-${aadAdminObjectid}'
+  name: 'oasisPostgresqlServer/aadadmin' // concat(oasisServerName, '-', aadAdminObjectid) //'oasisServerName-${aadAdminObjectid}'
   dependsOn: [
     oasisPostgresqlServer
   ]
@@ -165,16 +165,16 @@ resource addAddUser 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@20
   }
 }
 
-resource postgresqlActiveDirectoryAdmin 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = {
-  parent: oasisPostgresqlServer
-  name: 'activeDirectory'
-  properties: {
-    // administratorType: 'ActiveDirectory'
-    // login: 'PostgresAdmin'  //This is a Group in the Azure Directory
-    // sid: ''  //grab SID(object id) of the group
-    tenantId: subscription().tenantId  //tenant id
-  }
-}
+// resource postgresqlActiveDirectoryAdmin 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = {
+//   parent: oasisPostgresqlServer
+//   name: 'activeDirectory'
+//   properties: {
+//     // administratorType: 'ActiveDirectory'
+//     // login: 'PostgresAdmin'  //This is a Group in the Azure Directory
+//     // sid: ''  //grab SID(object id) of the group
+//     tenantId: subscription().tenantId  //tenant id
+//   }
+// }
 
 
 
@@ -299,27 +299,27 @@ module privateEndpoint 'private_endpoint.bicep' = {
 
 
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: 'private-postgresql-endpoint'
-  location: location
-  tags: tags
-  properties: {
-     subnet: {
-       id: subnetID
-     }
-     privateLinkServiceConnections: [
-       {
-         name: 'db-connection'
-         properties: {
-           privateLinkServiceId: oasisPostgresqlServer.id
-           groupIds: [
-            'postgresqlServer'
-           ]
-         }
-       }
-     ]
-  }
-}
+// resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+//   name: 'private-postgresql-endpoint'
+//   location: location
+//   tags: tags
+//   properties: {
+//      subnet: {
+//        id: subnetID
+//      }
+//      privateLinkServiceConnections: [
+//        {
+//          name: 'db-connection'
+//          properties: {
+//            privateLinkServiceId: oasisPostgresqlServer.id
+//            groupIds: [
+//             'postgresqlServer'
+//            ]
+//          }
+//        }
+//      ]
+//   }
+// }
 
 resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   parent: privateDnsZones
@@ -333,20 +333,20 @@ resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLin
   }
 }
 
-resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-08-01' = {
-  parent: privateEndpoint
-  name: 'default'
-  properties: {
-    privateDnsZoneConfigs: [
-      {
-        name: privateDNSZoneName
-        properties: {
-          privateDnsZoneId: privateDnsZones.id
-        }
-      }
-    ]
-  }
-}
+// resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-08-01' = {
+//   parent: privateEndpoint
+//   name: 'default'
+//   properties: {
+//     privateDnsZoneConfigs: [
+//       {
+//         name: privateDNSZoneName
+//         properties: {
+//           privateDnsZoneId: privateDnsZones.id
+//         }
+//       }
+//     ]
+//   }
+// }
 
 resource oasisServerDbLinkName 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = {
   name: '${keyVaultName}/oasis-db-server-host'
