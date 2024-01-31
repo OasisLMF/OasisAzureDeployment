@@ -154,7 +154,7 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
 }
 
 resource addAddUser 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = {
-  name: 'oasisPostgresqlServer/aadadmin' // concat(oasisServerName, '-', aadAdminObjectid) //'oasisServerName-${aadAdminObjectid}'
+  name: 'Admin Object/App ID:6d08e41e-7bbe-4b7a-b555-7a1a20ca8428' // concat(oasisServerName, '-', aadAdminObjectid) //'oasisServerName-${aadAdminObjectid}'
   dependsOn: [
     oasisPostgresqlServer
   ]
