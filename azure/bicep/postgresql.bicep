@@ -37,6 +37,11 @@ param subnetID string
 param privateDNSZoneName string = 'privatelink.postgres.database.azure.com'
 
 
+param flexibleServers_mydemoserver_pg_oasis_name string = 'mydemoserver-pg-oasis'
+param virtualNetworks_test_postgres_vnet_externalid string = '/subscriptions/da90aaa5-0e0f-4362-bb41-422887865d0f/resourceGroups/test-postgres/providers/Microsoft.Network/virtualNetworks/test-postgres-vnet'
+param privateDnsZones_mydemoserver_pg_oasis_private_postgres_database_azure_com_externalid string = '/subscriptions/da90aaa5-0e0f-4362-bb41-422887865d0f/resourceGroups/test-postgres/providers/Microsoft.Network/privateDnsZones/mydemoserver-pg-oasis.private.postgres.database.azure.com'
+
+
 
 
 /*  Networking - sql server   (working notes)
@@ -99,9 +104,9 @@ param keyVaultName string = 'oasisVault'
 
 
 
-resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
+resource flexibleServers_mydemoserver_pg_oasis_name_resource 'Microsoft.DBforPostgreSQL/flexibleServers@2023-06-01-preview' = {
   location: location
-  name: oasisServerName
+  name: flexibleServers_mydemoserver_pg_oasis_name
   identity: (empty(identityData) ? null : identityData)
   properties: {
     createMode: 'Default'
@@ -153,15 +158,13 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
   ]
 }
 
-resource addAddUser 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = {
-  name: 'Admin Object/App ID:6d08e41e-7bbe-4b7a-b555-7a1a20ca8428' // concat(oasisServerName, '-', aadAdminObjectid) //'oasisServerName-${aadAdminObjectid}'
-  dependsOn: [
-    oasisPostgresqlServer
-  ]
+resource flexibleServers_mydemoserver_pg_oasis_name_6d08e41e_7bbe_4b7a_b555_7a1a20ca8428 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2023-06-01-preview' = {
+  parent: flexibleServers_mydemoserver_pg_oasis_name_resource
+  name: '6d08e41e-7bbe-4b7a-b555-7a1a20ca8428'
   properties: {
-    tenantId: subscription().tenantId
-    principalType: aadAdminType
-    principalName: aadAdminName
+    principalType: 'ServicePrincipal'
+    principalName: 'Azure OSSRDBMS PostgreSQL Flexible Server AAD Authentication'
+    tenantId: '812eb12f-c995-45ef-bfea-eac7aeca0755'
   }
 }
 
@@ -185,7 +188,7 @@ resource addAddUser 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@20
 // Databases
 resource oasisDb 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
   name: oasisDbName
-  parent: oasisPostgresqlServer
+  parent: flexibleServers_mydemoserver_pg_oasis_name_resource
   properties: {
     charset: 'UTF8'
     collation: 'en_US.utf8'
@@ -193,7 +196,7 @@ resource oasisDb 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01
 }
 resource keycloakDb 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
   name: 'keycloak'
-  parent: oasisPostgresqlServer
+  parent: flexibleServers_mydemoserver_pg_oasis_name_resource
   properties: {
     charset: 'UTF8'
     collation: 'en_US.utf8'
@@ -201,7 +204,7 @@ resource keycloakDb 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03
 }
 resource celeryDb 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
   name: 'celery'
-  parent: oasisPostgresqlServer
+  parent: flexibleServers_mydemoserver_pg_oasis_name_resource
   properties: {
     charset: 'UTF8'
     collation: 'en_US.utf8'
@@ -275,8 +278,8 @@ resource celeryDbUsername 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview'
   }
 }
 
-output privateLinkServiceId string = oasisPostgresqlServer.id
-output serverName string = oasisPostgresqlServer.name
+output privateLinkServiceId string = flexibleServers_mydemoserver_pg_oasis_name_resource.id
+output serverName string = flexibleServers_mydemoserver_pg_oasis_name_resource.name
 
 /*
 module privateEndpoint 'private_endpoint.bicep' = {
@@ -355,7 +358,7 @@ resource oasisServerDbLinkName 'Microsoft.KeyVault/vaults/secrets@2021-06-01-pre
     attributes: {
       enabled: true
     }
-    value: '${oasisPostgresqlServer.name}.${privateDNSZoneName}'
+    value: '${flexibleServers_mydemoserver_pg_oasis_name_resource.name}.${privateDNSZoneName}'
   }
 }
 
