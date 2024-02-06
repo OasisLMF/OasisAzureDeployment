@@ -26,20 +26,11 @@ spec:
                   name: oasis-db-server-name
                   key: oasis-db-server-name
             - name: OASIS_DB_SERVER_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: oasis-db-server-host
-                  key: oasis-db-server-host
+              value: mydemoserver-pg-oasis.postgres.database.azure.com
             - name: OASIS_DB_SERVER_ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: oasis-db-server-admin-username
-                  key: oasis-db-server-admin-username
+              value: oasisadmin
             - name: OASIS_DB_SERVER_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: oasis-db-server-admin-password
-                  key: oasis-db-server-admin-password
+              value: oasisadminpassword
             - name: OASIS_DB_USERNAME
               valueFrom:
                 secretKeyRef:
