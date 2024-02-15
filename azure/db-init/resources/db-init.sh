@@ -52,7 +52,7 @@ EOF
 
 echo "Users:"
 
-psql "sslmode=require host=${OASIS_DB_SERVER_HOST} user=${OASIS_DB_SERVER_ADMIN_USERNAME}@${OASIS_DB_SERVER_NAME} password=${OASIS_DB_SERVER_ADMIN_PASSWORD} dbname=postgres" << EOF
+psql "sslmode=require host=${OASIS_DB_SERVER_HOST} user=admin@oasis.app dbname=postgres" << EOF
 \du
 EOF
 

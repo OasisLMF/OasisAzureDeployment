@@ -66,13 +66,13 @@ resource privateDnsZones 'Microsoft.Network/privateDnsZones@2020-06-01' = {
 param identityData object = {}
 param dataEncryptionData object = {}
 param apiVersion string = '14'
-param aadEnabled bool = true
+param aadEnabled bool = false
 @description('Active Directory Authentication')
 @allowed([
   'Disabled'
   'Enabled'
 ])
-param isActiveDirectoryAuthEnabled string = 'Enabled'
+param isActiveDirectoryAuthEnabled string = 'Disabled'
 
 @description('PostgreSQL Authentication')
 @allowed([
@@ -81,19 +81,19 @@ param isActiveDirectoryAuthEnabled string = 'Enabled'
 ])
 param isPostgreSQLAuthEnabled string = 'Enabled'
 
-@description('The object ID of the Azure AD admin.')
-param aadAdminObjectid string = ''
+// @description('The object ID of the Azure AD admin.')
+// param aadAdminObjectid string = ''
 
-@description('Azure AD admin name')
-param aadAdminName string = 'oasisaadadmin'
+// @description('Azure AD admin name')
+// param aadAdminName string = 'oasisaadadmin'
 
-@description('Azure AD admin type')
-@allowed([
-  'User'
-  'Group'
-  'ServicePrincipal'
-])
-param aadAdminType string = 'ServicePrincipal'
+// @description('Azure AD admin type')
+// @allowed([
+//   'User'
+//   'Group'
+//   'ServicePrincipal'
+// ])
+// param aadAdminType string = 'ServicePrincipal'
 
 param authConfig object = {}
 param guid string = newGuid()
@@ -115,13 +115,13 @@ resource flexibleServers_mydemoserver_pg_oasis_name_resource 'Microsoft.DBforPos
     availabilityZone: availabilityZone
     minimalTlsVersion: '1.2'
     authConfig: {
-      activeDirectoryAuth: isActiveDirectoryAuthEnabled
-      passwordAuth: isPostgreSQLAuthEnabled
+      activeDirectoryAuth: 'Disabled'
+      passwordAuth: 'Enabled'
       tenantId: subscription().tenantId
     }
     authentication: {
       aadAuthentication: {
-        login: 'Enabled'
+        login: 'Disabled'
         serverRoles: [
           'admin'
         ]
@@ -158,15 +158,15 @@ resource flexibleServers_mydemoserver_pg_oasis_name_resource 'Microsoft.DBforPos
   ]
 }
 
-resource flexibleServers_mydemoserver_pg_oasis_name_6d08e41e_7bbe_4b7a_b555_7a1a20ca8428 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2023-06-01-preview' = {
-  parent: flexibleServers_mydemoserver_pg_oasis_name_resource
-  name: '6d08e41e-7bbe-4b7a-b555-7a1a20ca8428'
-  properties: {
-    principalType: 'ServicePrincipal'
-    principalName: 'Azure OSSRDBMS PostgreSQL Flexible Server AAD Authentication'
-    tenantId: '812eb12f-c995-45ef-bfea-eac7aeca0755'
-  }
-}
+// resource flexibleServers_mydemoserver_pg_oasis_name_6d08e41e_7bbe_4b7a_b555_7a1a20ca8428 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2023-06-01-preview' = {
+//   parent: flexibleServers_mydemoserver_pg_oasis_name_resource
+//   name: '6d08e41e-7bbe-4b7a-b555-7a1a20ca8428'
+//   properties: {
+//     principalType: 'ServicePrincipal'
+//     principalName: 'Azure OSSRDBMS PostgreSQL Flexible Server AAD Authentication'
+//     tenantId: '812eb12f-c995-45ef-bfea-eac7aeca0755'
+//   }
+// }
 
 // resource postgresqlActiveDirectoryAdmin 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2022-12-01' = {
 //   parent: oasisPostgresqlServer
@@ -280,6 +280,9 @@ resource celeryDbUsername 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview'
 
 output privateLinkServiceId string = flexibleServers_mydemoserver_pg_oasis_name_resource.id
 output serverName string = flexibleServers_mydemoserver_pg_oasis_name_resource.name
+output postgresqlServerId string = flexibleServers_mydemoserver_pg_oasis_name_resource.id
+output postgresqlServerFQDN string = flexibleServers_mydemoserver_pg_oasis_name_resource.properties.fullyQualifiedDomainName
+//output managedIdentityPrincipalId string = flexibleServers_mydemoserver_pg_oasis_name_resource.properties.identity.principalId
 
 /*
 module privateEndpoint 'private_endpoint.bicep' = {
