@@ -116,8 +116,6 @@ module keyVault 'key_vault.bicep' = {
 module oasisPostgresqlDb 'postgresql.bicep' = {
   name: 'oasisPostgresqlDb'
   params: {
-    administratorLogin:'oasisadmin'
-    administratorLoginPassword: oasisServerAdminPassword
     location: location
     tags: tags
     keyVaultName: keyVault.outputs.keyVaultName
