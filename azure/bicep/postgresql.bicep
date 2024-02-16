@@ -43,7 +43,7 @@ param keyVaultName string = 'oasisVault'
 
 
 resource privateDnsZones 'Microsoft.Network/privateDnsZones@2020-06-01' = {
-  name: '${oasisServerName}.postgres.database.azure.com'
+  name: 'private.postgres.database.azure.com'
   location: 'global'
 }
 
@@ -188,6 +188,7 @@ resource oasisServerDbLinkName 'Microsoft.KeyVault/vaults/secrets@2021-06-01-pre
       enabled: true
     }
     value: '${oasisServerName}.postgres.database.azure.com'
+    //value: 'private.postgres.database.azure.com'
   }
 }
 
