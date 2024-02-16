@@ -48,6 +48,19 @@ resource privateDnsZones 'Microsoft.Network/privateDnsZones@2020-06-01' = {
 }
 
 
+resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  parent: privateDnsZones
+  name: '${privateDnsZones.name}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: resourceId('Microsoft.Network/VirtualNetworks', vnetName)
+    }
+  }
+}
+
+
 resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
   location: location
   name: oasisServerName
@@ -179,6 +192,7 @@ resource celeryDbUsername 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview'
   }
 }
 
+
 resource oasisServerDbLinkName 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = {
   name: '${keyVaultName}/oasis-db-server-host'
   tags: tags
@@ -187,7 +201,6 @@ resource oasisServerDbLinkName 'Microsoft.KeyVault/vaults/secrets@2021-06-01-pre
       enabled: true
     }
     value: '${oasisServerName}.postgres.database.azure.com'
-    //value: 'private.postgres.database.azure.com'
   }
 }
 
