@@ -1,25 +1,17 @@
-@secure()
+@description('Resource location')
 param location string
+
+@description('Name of database instance')
 param oasisServerName string = 'oasis-${uniqueString(resourceGroup().id)}'
-param serverEdition string = 'GeneralPurpose'
-param storageSizeGB int = 128
-param haEnabled string = 'Disabled'
-param availabilityZone string = ''
-param standbyAvailabilityZone string = ''
-param version string = '14'
-param tags object = {}
-param backupRetentionDays int = 7
-param geoRedundantBackup string = 'Disable'
-param vmName string = 'Standard_D4s_v3'
+
 @description('Username for admin user')
 param oasisServerAdminUsername string = 'oasisadmin'
-@secure()
+
 @description('Password for admin user')
 param oasisServerAdminPassword string
 
 @description('Oasis database name')
 param oasisDbName string = 'oasis'
-
 
 @description('The virtual network name')
 param vnetName string
@@ -30,16 +22,24 @@ param subnetName string
 @description('The name of the subnet')
 param subnetID string
 
-param identityData object = {}
-param dataEncryptionData object = {}
-param apiVersion string = '14'
-param aadEnabled bool = false
-
-param authConfig object = {}
-param guid string = newGuid()
-
 @description('Name of key vault')
 param keyVaultName string = 'oasisVault'
+
+// DB options and placeholders
+param authConfig object = {}
+param identityData object = {}
+param dataEncryptionData object = {}
+param version string = '14'
+param tags object = {}
+param aadEnabled bool = false
+param backupRetentionDays int = 7
+param geoRedundantBackup string = 'Disable'
+param vmName string = 'Standard_D4s_v3'
+param availabilityZone string = ''
+param standbyAvailabilityZone string = ''
+param serverEdition string = 'GeneralPurpose'
+param storageSizeGB int = 128
+param haEnabled string = 'Disabled'
 
 
 resource privateDnsZones 'Microsoft.Network/privateDnsZones@2020-06-01' = {
@@ -84,7 +84,6 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
   tags: tags
   dependsOn: []
 }
-
 
 
 // Databases
