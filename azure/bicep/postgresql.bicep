@@ -166,7 +166,7 @@ resource oasisDbUsername 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' 
     attributes: {
       enabled: true
     }
-    value: 'oasis@${oasisServerName}'
+    value: 'oasis'
   }
 }
 
@@ -177,7 +177,7 @@ resource keycloakDbUsername 'Microsoft.KeyVault/vaults/secrets@2021-06-01-previe
     attributes: {
       enabled: true
     }
-    value: 'keycloak@${oasisServerName}'
+    value: 'keycloak'
   }
 }
 
@@ -188,7 +188,7 @@ resource celeryDbUsername 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview'
     attributes: {
       enabled: true
     }
-    value: 'celery@${oasisServerName}'
+    value: 'celery'
   }
 }
 
