@@ -4,16 +4,17 @@
   "parameters": {
     "allowedCidrRanges": {
       "value": [
+        "2.221.93.21"
       ]
     },
     "oasisServerAdminPassword": {
-      "value": ""
+      "value": "1uB63qoO.S4RL£e.L8=;"
     },
     "platformNodeVm": {
-      "value": "Standard_B2ms"
+      "value": "Standard_F4s"
     },
     "workerNodesVm": {
-      "value": "Standard_B2s"
+      "value": "Standard_E4_v3"
     },
     "workerNodesMaxCount": {
       "value": 2
