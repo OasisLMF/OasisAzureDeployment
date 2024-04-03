@@ -41,6 +41,10 @@ param serverEdition string = 'GeneralPurpose'
 param storageSizeGB int = 128
 param haEnabled string = 'Disabled'
 
+// @secure()
+// param privateKeyContent = secureFileContent('./private_key.pem')
+
+
 
 resource privateDnsZones 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: 'private.postgres.database.azure.com'
@@ -59,6 +63,33 @@ resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLin
     }
   }
 }
+
+// resource postgresqlServerCertificate 'Microsoft.DBforPostgreSQL/flexibleServers/certificates@2023-06-01-preview' = {
+//   parent: oasisPostgresqlServer //flexibleServers_mydemoserver_pg_oasis_name_resource
+//   name: 'myCertificate'
+//   properties: {
+//     publicKey: @copied-pub.crt
+
+//     privateKey: '-----BEGIN PRIVATE KEY-----
+//     MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAheqYH8tw1TOIuRE/fszh
+// TM0xGh2wjE/9ipu8EgmG4CRjFfIuBSfW52nRrQWY8BdrjB/o5rlfaRZR0JKSGeZ/
+// pnXi9XwViwAcuLZXucnIJwuSqydz9zuZxWHBV9S1vFuW8YzRHc07BR++W4Q6rut7
+// gevTWBhZ90AluIpeigRweKNq5xR+SLETJRk2M92LY1Lk4e7xtmd+bIgvSphfyS4g
+// fZSxKOtAtHhFSJeLMYklGo6D8pz4fbUMi92XA/zjGoj6sSoE9bAxfqtNy2D4+rHf
+// e83WypuWPqeEAbOui9emL38ENhc7fHxALHsCEMIko4flCF/96zeMl7LR3ePdVNBg
+// CwIDAQAB
+//     -----END PRIVATE KEY-----'
+//   }
+// }
+
+// resource myCertificate 'Microsoft.CertificateRegistration/certificates@2021-06-01' = {
+//   name: 'myCertificate'
+//   properties: {
+//     privateKey: privateKeyContent
+//     // Other properties of the certificate
+//   }
+// }
+
 
 
 resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
