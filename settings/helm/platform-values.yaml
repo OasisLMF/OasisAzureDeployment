@@ -55,7 +55,7 @@ volumes: # i am supposed to write a logic here that says if sharedfs then use ..
         volumeAttributes:
           secretName: oasis-storage-account
           shareName: oasisfs
-write a yaml code for a certifiicate to check if it is defined in the values file then we use the certificate  from the values file and mount it to the keycloak pod else 
+#write a yaml code for a certifiicate to check if it is defined in the values file then we use the certificate  from the values file and mount it to the keycloak pod else 
 azure:
   host: {}
   storageAccounts:
