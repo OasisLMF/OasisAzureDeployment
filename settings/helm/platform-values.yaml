@@ -123,6 +123,18 @@ databases:
     user: oasis
 
 keycloak:
+  name: keycloak
+  port: 8080
+  user: keycloak
+  password: password
+  oasisRestApi:
+    platformServiceAccount:
+      username: platform-service-controller
+      password: x7e+GK6Y8ac#grb&9vT4
+    users:
+      - username: admin
+        password: password
+        admin: true
   certConfigMapName: keycloak-cert-configmap
     
     
