@@ -47,6 +47,15 @@ ingress-nginx:
 
 # Volumes to mount and use within the platform
 volumes: # i am supposed to write a logic here that says if sharedfs then use .. else use ???
+  
+{{- if ((.Values.volumes.host).sharedFs) }}
+        - name: shared-fs-persistent-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.volumes.host.sharedFs.name }}
+{{- else if ((.Values.volumes.azureFiles).sharedFs) }}
+        - name: shared-fs-persistent-storage
+{{- toYaml .Values.volumes.azureFiles.sharedFs | nindent 10 }}
+{{- end }}
   host: null
   azureFiles:
     sharedFs:
@@ -112,3 +121,8 @@ databases:
     dbName: oasis
     port: 5432
     user: oasis
+
+keycloak:
+  certConfigMapName: keycloak-cert-configmap
+    
+    

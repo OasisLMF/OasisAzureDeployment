@@ -1,6 +1,6 @@
 {{ $realmSecretName := printf "%s-realm" .Values.keycloak.name }}
 apiVersion: v1
-kind: ConfigMap
+kind: keycloak-cert-configmap
 metadata:
   name: {{ .Release.Name }}-{{ .Chart.Name }}-configmap1 # ms-azure-postgres-cert
 data:
@@ -65,23 +65,14 @@ spec:
               value: DEBUG
             - name: PROXY_ADDRESS_FORWARDING            
           volumeMounts:
-            - name: azure-cert
+            - name: keycloak-cert
               mountPath: /opt/keycloak/.postgresql/root.crt
               subPath: file-postgres-cert
-            - name: realm-config
-              mountPath: /opt/keycloak/data/import/oasis-realm.json
-              subpath: oasis
       volumes: 
-        - name: azure-cert
+        - name: keycloak-cert
           configMap:
-            name: {{ .Release.Name }}-{{ .Chart.Name }}-configmap1
-        - name: realm-config
-          configMap:
-            name: {{ $realmSecretName}}
-{{- range $key, $value := .Values.myapps.config1 }}
-{{- $key | nindent 2 }}: {{ $value }}
-{{- end }}
-
+            name: {{ .Values.keycloak.certConfigMapName }}
+        
 ---
 apiVersion: v1
 kind: Service
