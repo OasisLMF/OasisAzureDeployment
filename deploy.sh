@@ -526,6 +526,9 @@ case "$deploy_type" in
 
     echo "Deploying oasis..."
 
+    # 
+    source /OasisAzureDeployment/settings/helm/cert-vault.sh
+
     echo "Retrieving oasis storage account name and keys"
 
     oasis_fs_account_name="$(get_secret oasisfs-name)"
