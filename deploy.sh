@@ -343,7 +343,7 @@ function get_acr {
 
 function download_ms_cert {
   cert_url='https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem'
-  cert_file='./keycloak-DigiCertRootCA.pem'
+  cert_file='/tmp/keycloak-DigiCertRootCA.pem'
   secret_name='keycloak-cert-file'
   key_vault_name="$(get_key_vault_name)"
 
@@ -417,9 +417,6 @@ case "$deploy_type" in
     keycloak_db_password=$(get_or_generate_secret "keycloak-db-password")
     celery_db_password=$(get_or_generate_secret "celery-db-password")
 
-    echo "Fetching Keycloak CA cert from MS..."
-    keycloak_cert_secret="$(download_ms_cert)"
-
     echo "Get environment settings..."
     key_vault_name="$(get_key_vault_name)"
     key_vault_tenant_id="$(get_key_vault_tenant_id)"
@@ -429,6 +426,10 @@ case "$deploy_type" in
     platform_service_account_password=$(get_or_generate_secret "platform-service-account-password")
 
     update_kubectl_cluster
+
+    echo "Fetching Keycloak CA cert from MS..."
+    keycloak_cert_secret="$(download_ms_cert)"
+
 
     if helm status db-init &> /dev/null; then
 
