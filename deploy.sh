@@ -56,6 +56,7 @@ function get_bicep_parameter {
   echo "$value"
 }
 
+
 SCRIPT_DIR="$(cd $(dirname "$0"); pwd)"
 UPLOAD_MODEL_DATA="${SCRIPT_DIR}/scripts/upload_model_data.sh"
 deploy_type="$1"
@@ -338,6 +339,28 @@ function get_acr {
   echo $VALUE
 }
 
+
+
+function download_ms_cert {
+  cert_url='https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem'
+  cert_file='./keycloak-DigiCertRootCA.pem'
+  secret_name='keycloak-cert-file'
+  key_vault_name="$(get_key_vault_name)"
+
+  if ! az keyvault secret list --vault-name "$key_vault_name" --query "[].name" -o tsv | grep -q "$secret_name"; then
+    echo "Downloading MS Cert $cert_url..." 1>&2
+    wget $cert_url -O $cert_file
+    az keyvault secret set --vault-name "$key_vault_name" --name "$secret_name" --file "$cert_file"
+  else
+    az keyvault secret show --vault-name "$key_vault_name" --name "$secret_name" --query "value" -o tsv
+  fi
+
+  echo "$secret_name"
+}
+
+
+
+
 az_login
 
 case "$deploy_type" in
@@ -393,6 +416,9 @@ case "$deploy_type" in
     oasis_db_password=$(get_or_generate_secret "oasis-db-password")
     keycloak_db_password=$(get_or_generate_secret "keycloak-db-password")
     celery_db_password=$(get_or_generate_secret "celery-db-password")
+
+    echo "Fetching Keycloak CA cert from MS..."
+    keycloak_cert_secret="$(download_ms_cert)"
 
     echo "Get environment settings..."
     key_vault_name="$(get_key_vault_name)"
