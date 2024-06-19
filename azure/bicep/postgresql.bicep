@@ -17,28 +17,35 @@ param oasisDbName string = 'oasis'
 param vnetName string
 
 @description('The name of the subnet')
-param subnetName string
-
-@description('The name of the subnet')
 param subnetID string
 
 @description('Name of key vault')
 param keyVaultName string = 'oasisVault'
 
-// DB options and placeholders
+@description('PostgreSQL Server version')
+param postgresVersion string
+
+@description('Max storage allowed for a server')
+param postgresStorageSizeGB int
+
+@description('SKU of the Nodes running the server')
+param postgresNodesVm string
+
+@description('Backup retention days for the server.')
+param postgresBackupRetentionDays int
+
+@description('The tier of the particular SKU')
+param postgresServerEdition string
+
+// DB placeholder options
 param authConfig object = {}
 param identityData object = {}
 param dataEncryptionData object = {}
-param version string = '14'
 param tags object = {}
 param aadEnabled bool = false
-param backupRetentionDays int = 7
 param geoRedundantBackup string = 'Disable'
-param vmName string = 'Standard_D4s_v3'
 param availabilityZone string = ''
 param standbyAvailabilityZone string = ''
-param serverEdition string = 'GeneralPurpose'
-param storageSizeGB int = 128
 param haEnabled string = 'Disabled'
 
 
@@ -46,7 +53,6 @@ resource privateDnsZones 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: 'private.postgres.database.azure.com'
   location: 'global'
 }
-
 
 resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   parent: privateDnsZones
@@ -60,7 +66,6 @@ resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLin
   }
 }
 
-
 resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
   location: location
   name: oasisServerName
@@ -71,7 +76,7 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
     administratorLoginPassword: oasisServerAdminPassword
     availabilityZone: availabilityZone
     backup: {
-      backupRetentionDays: backupRetentionDays
+      backupRetentionDays: postgresBackupRetentionDays
       geoRedundantBackup: geoRedundantBackup
     }
     highAvailability: {
@@ -84,15 +89,15 @@ resource oasisPostgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-1
       privateDnsZoneArmResourceId: privateDnsZones.id
     }
     storage: {
-      storageSizeGB: storageSizeGB
+      storageSizeGB: postgresStorageSizeGB
 
     }
-    version: version
+    version: postgresVersion
     authConfig: (empty(authConfig) ? null : authConfig)
   }
   sku: {
-    name: vmName
-    tier: serverEdition
+    name: postgresNodesVm
+    tier: postgresServerEdition
   }
   tags: tags
   dependsOn: []
@@ -108,6 +113,7 @@ resource oasisDb 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01
     collation: 'en_US.utf8'
   }
 }
+
 resource keycloakDb 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
   name: 'keycloak'
   parent: oasisPostgresqlServer
@@ -116,6 +122,7 @@ resource keycloakDb 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03
     collation: 'en_US.utf8'
   }
 }
+
 resource celeryDb 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
   name: 'celery'
   parent: oasisPostgresqlServer
@@ -191,7 +198,6 @@ resource celeryDbUsername 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview'
     value: 'celery'
   }
 }
-
 
 resource oasisServerDbLinkName 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' = {
   name: '${keyVaultName}/oasis-db-server-host'

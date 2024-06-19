@@ -18,12 +18,27 @@
     "workerNodesMaxCount": {
       "value": 2
     },
+    "postgresNodesVm": {
+      "value": "Standard_D4s_v3"
+    },
+    "postgresVersion": {
+      "value": "14"
+    },
+    "postgresStorageSizeGB": {
+      "value": 128
+    },
+    "postgresBackupRetentionDays": {
+      "value": 7
+    },
+    "postgresServerEdition": {
+      "value": "GeneralPurpose"
+    },
     "oasisStorageAccountSKU": {
       "value": "Standard_LRS"
     },
     "clusterName": {
       "value": "oasis-enterprise"
-    },
+   },
     "availabilityZones": {
       "value": []
     },
