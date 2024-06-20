@@ -2,7 +2,7 @@
 # Azure does not support automatically user creation - this script will be run as a step to prepare the databases
 # and create users and set their generated passwords.
 
-set -e
+set -ex
 
 apk add postgresql14-client
 
@@ -14,7 +14,7 @@ echo "Oasis user: $OASIS_DB_USERNAME_WITHOUT_SERVER_NAME"
 echo "Keycloak user: $KEYCLOAK_DB_USERNAME_WITHOUT_SERVER_NAME"
 echo "Celery user: $CELERY_DB_USERNAME_WITHOUT_SERVER_NAME"
 
-psql "sslmode=require host=${OASIS_DB_SERVER_HOST} user=${OASIS_DB_SERVER_ADMIN_USERNAME}@${OASIS_DB_SERVER_NAME} password=${OASIS_DB_SERVER_ADMIN_PASSWORD} dbname=postgres" << EOF
+psql "sslmode=require host=${OASIS_DB_SERVER_HOST} user=${OASIS_DB_SERVER_ADMIN_USERNAME} password=${OASIS_DB_SERVER_ADMIN_PASSWORD} dbname=postgres" << EOF
 
 DO \$\$
 BEGIN
@@ -52,7 +52,7 @@ EOF
 
 echo "Users:"
 
-psql "sslmode=require host=${OASIS_DB_SERVER_HOST} user=${OASIS_DB_SERVER_ADMIN_USERNAME}@${OASIS_DB_SERVER_NAME} password=${OASIS_DB_SERVER_ADMIN_PASSWORD} dbname=postgres" << EOF
+psql "sslmode=require host=${OASIS_DB_SERVER_HOST} user=${OASIS_DB_SERVER_ADMIN_USERNAME} password=${OASIS_DB_SERVER_ADMIN_PASSWORD} dbname=postgres" << EOF
 \du
 EOF
 

@@ -7,6 +7,9 @@ param vnetName string
 @description('The name of the subnet')
 param subnetName string
 
+@description('The name of the subnet')
+param subnetNameDB string = 'postgresSubnet'
+
 @description('The virtual network address prefixes')
 param vnetAddressPrefixes array
 
@@ -87,8 +90,29 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
            ]
         }
       }
+      {
+        name: subnetNameDB
+        properties: {
+          addressPrefix: '10.240.16.0/24'
+          serviceEndpoints: [
+            {
+              service: 'Microsoft.Storage'
+            }
+          ]
+          delegations: [
+            {
+              name: 'Microsoft.DBforPostgreSQL/flexibleServers'
+              type: 'Microsoft.Network/virtualNetworks/subnets/delegations'
+              properties: {
+                serviceName: 'Microsoft.DBforPostgreSQL/flexibleServers'
+              }
+            }
+          ]
+        }
+      }
     ]
   }
 }
 
 output subnetId string = '${vnet.id}/subnets/${subnetName}'
+output subnetDBid string = '${vnet.id}/subnets/${subnetNameDB}'

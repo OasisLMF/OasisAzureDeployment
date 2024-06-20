@@ -13,7 +13,7 @@ param platformNodeVm string
 @description('The VM Size to use for each worker node')
 param workerNodesVm string
 
-@maxValue(10)
+@maxValue(50)
 @description('Max number of nodes to scale up to')
 param workerNodesMaxCount int = 1
 

@@ -78,6 +78,9 @@ azure:
           objectName: keycloak-db-username
         - key: password
           objectName: keycloak-db-password
+      keycloak-cert:
+        - key: file
+          objectName: keycloak-cert-file
       channel-layer:
         - key: password
           objectName: celery-redis-password
