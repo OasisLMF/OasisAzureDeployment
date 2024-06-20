@@ -59,6 +59,22 @@ param vnetName string = '${clusterName}-vnet'
 @description('Name of sub network')
 param subnetName string = '${clusterName}-snet'
 
+@description('PostgreSQL Server version')
+param postgresVersion string
+
+@description('Max storage allowed for a server')
+param postgresStorageSizeGB int
+
+@description('SKU of the Nodes running the server')
+param postgresNodesVm string
+
+@description('Backup retention days for the server.')
+param postgresBackupRetentionDays int
+
+@description('The tier of the particular SKU')
+param postgresServerEdition string
+
+
 module vnet 'vnet.bicep' = {
   name: 'vnetDeploy'
   params: {
@@ -108,18 +124,23 @@ module oasisPostgresqlDb 'postgresql.bicep' = {
   name: 'oasisPostgresqlDb'
   params: {
     location: location
+    vnetName: vnetName
+    subnetID: vnet.outputs.subnetDBid
     tags: tags
     keyVaultName: keyVault.outputs.keyVaultName
     oasisServerAdminPassword: oasisServerAdminPassword
-    vnetName: vnetName
-    subnetName: subnetName
-    subnetID: vnet.outputs.subnetDBid
+    postgresVersion: postgresVersion
+    postgresStorageSizeGB: postgresStorageSizeGB
+    postgresNodesVm: postgresNodesVm
+    postgresBackupRetentionDays: postgresBackupRetentionDays
+    postgresServerEdition: postgresServerEdition
   }
 
   dependsOn: [
     vnet
   ]
 }
+
 
 module celeryRedis 'redis.bicep' = {
   name: 'celeryRedis'
