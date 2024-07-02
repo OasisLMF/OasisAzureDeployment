@@ -233,7 +233,7 @@ function start_port_forward() {
   done
   echo "up"
 
-  export OASIS_API_URL="http://localhost:$PORT_FORWARDING_LOCAL_PORT"
+  export OASIS_API_URL="http://localhost:$PORT_FORWARDING_LOCAL_PORT/api"
 }
 
 function start_port_forward_if_needed() {
