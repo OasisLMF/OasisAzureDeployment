@@ -24,7 +24,7 @@ function usage {
   echo
   echo "  models         Install/update models defined in settings/helm/models-values.yaml"
   echo
-  echo "  logging        Install/update Fluent bit deamon-set for pods log collection in azure blob storage" 
+  echo "  logging        Install/update Fluent bit deamon-set for pods log collection in azure blob storage"
   echo
   echo "  update-kubectl Update kubectl context cluster"
   echo "  api [ls|run <id>]"
@@ -723,7 +723,7 @@ case "$deploy_type" in
     echo '  * https://github.com/fluent/helm-charts'
 
     helm repo add fluent https://fluent.github.io/helm-charts
-    helm upgrade -i fluent-bit fluent/fluent-bit -f "${SCRIPT_DIR}settings/helm/fluent-bit-values.yaml"
+    helm upgrade -i fluent-bit fluent/fluent-bit -f "${SCRIPT_DIR}/settings/helm/fluent-bit-values.yaml"
 
   ;;
   "api")
