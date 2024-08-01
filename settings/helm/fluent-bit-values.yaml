@@ -1,0 +1,30 @@
+# values.yaml for fluent-bit helm chart 
+# See: https://docs.fluentbit.io/manual/pipeline/outputs/azure_blob
+
+# Enable Fluent Bit as a DaemonSet
+daemonset:
+  enabled: true
+
+# Configuration for Fluent Bit
+config:
+  service: |
+    [SERVICE]
+        Flush        1
+        Log_Level    info
+
+  inputs: |
+    [INPUT]
+        Name        tail
+        Path        /var/log/containers/*.log
+        Tag         kube.*
+
+  outputs: |
+    [OUTPUT]
+        Name        azure_blob
+        Match       *
+        account_name          ${BLOB_ACCOUNT_NAME}
+        shared_key            ${BLOB_ACCOUNT_KEY}
+        path                  kubernetes
+        container_name        logs
+        auto_create_container on
+        tls                   on
