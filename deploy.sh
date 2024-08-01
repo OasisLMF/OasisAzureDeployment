@@ -24,6 +24,8 @@ function usage {
   echo
   echo "  models         Install/update models defined in settings/helm/models-values.yaml"
   echo
+  echo "  logging        Install/update Fluent bit deamon-set for pods log collection in azure blob storage" 
+  echo
   echo "  update-kubectl Update kubectl context cluster"
   echo "  api [ls|run <id>]"
   echo "                 Basic Oasis API commands"
@@ -713,6 +715,16 @@ case "$deploy_type" in
       echo "$0 purge [group|resources]"
       exit 0
     esac
+  ;;
+  "logging")
+    echo 'Installing Fluent bit helm chart - for documantion see:'
+    echo '  * https://docs.fluentbit.io/manual'
+    echo '  * https://docs.fluentbit.io/manual/pipeline/outputs/azure_blob'
+    echo '  * https://github.com/fluent/helm-charts'
+
+    helm repo add fluent https://fluent.github.io/helm-charts
+    helm upgrade -i fluent-bit fluent/fluent-bit -f "${SCRIPT_DIR}settings/helm/fluent-bit-values.yaml"
+
   ;;
   "api")
 
