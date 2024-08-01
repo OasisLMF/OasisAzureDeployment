@@ -27,10 +27,13 @@ param oasisBlobNameSecretName string = 'oasisblob-name'
 param oasisBlobKeySecretName string = 'oasisblob-key'
 
 @description('Blob Container name for oasis shared file system')
-param serverContainerName string = 'serverblobs'
+param serverContainerName string = 'server'
 
 @description('Blob Container name for model files')
-param modelsContainerName string = 'modelblobs'
+param modelsContainerName string = 'models'
+
+@description('Blob Container name for model files')
+param logsContainerName string = 'logs'
 
 @description('Name of key vault')
 param keyVaultName string
@@ -106,8 +109,12 @@ resource modelsContainer 'Microsoft.Storage/storageAccounts/blobServices/contain
   name: '${blobFs.name}/default/${modelsContainerName}'
 }
 
+resource modelsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
+  name: '${blobFs.name}/default/${logsContainerName}'
+}
+
 output oasisBlobNameSecretName string = oasisBlobNameSecretName
 output oasisBlobKeySecretName string = oasisBlobKeySecretName
 output serverBlobContainerName string = serverContainerName
 output modelsBlobContainerName string = modelsContainerName
-
+output logsBlobContainerName string = logsContainerName
