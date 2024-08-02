@@ -725,6 +725,7 @@ case "$deploy_type" in
     echo '  * https://github.com/fluent/helm-charts'
 
     helm repo add fluent https://fluent.github.io/helm-charts
+    helm repo update
     #helm upgrade -i fluent-bit fluent/fluent-bit -f "${SCRIPT_DIR}/settings/helm/fluent-bit-values.yaml"
 
     BLOB_STORAGE_ACCOUNT="$(get_secret oasisblob-name)"
