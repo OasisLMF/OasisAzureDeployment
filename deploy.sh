@@ -172,7 +172,9 @@ function helm_deploy() {
         sed "s/\${DNS_LABEL_NAME}/${DNS_LABEL_NAME}/g" | \
         sed "s/\${LOCATION}/${LOCATION}/g" | \
         sed "s/\${DOMAIN}/${domain}/g" | \
-        sed "s/\${LETSENCRYPT_EMAIL}/${LETSENCRYPT_EMAIL}/g" \
+        sed "s/\${LETSENCRYPT_EMAIL}/${LETSENCRYPT_EMAIL}/g" | \
+        sed "s/\${BLOB_STORAGE_ACCOUNT}/${BLOB_STORAGE_ACCOUNT}/g" | \
+        sed "s/\${BLOB_STORAGE_KEY}/${BLOB_STORAGE_KEY}/g" \
         > "$file"
 
     inputs+=" -f $file"
@@ -723,8 +725,12 @@ case "$deploy_type" in
     echo '  * https://github.com/fluent/helm-charts'
 
     helm repo add fluent https://fluent.github.io/helm-charts
-    helm upgrade -i fluent-bit fluent/fluent-bit -f "${SCRIPT_DIR}/settings/helm/fluent-bit-values.yaml"
+    #helm upgrade -i fluent-bit fluent/fluent-bit -f "${SCRIPT_DIR}/settings/helm/fluent-bit-values.yaml"
 
+    BLOB_STORAGE_ACCOUNT="$(get_secret oasisblob-name)"
+    TMP_VAR="$(get_secret oasisblob-key)"
+    BLOB_STORAGE_KEY=$(printf '%s' "$TMP_VAR" | sed 's/[&/\]/\\&/g')
+    helm_deploy "${SCRIPT_DIR}/settings/helm/fluent-bit-values.yaml" "fluent/fluent-bit" "fluent-bit"
   ;;
   "api")
 

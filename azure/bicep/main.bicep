@@ -235,7 +235,7 @@ output modelsFileShareName string = storageAccount.outputs.modelsFileShareName
 // BlockBlob Storage outputs
 output oasisBlobNameSecretName string = blobAccount.outputs.oasisBlobNameSecretName
 output oasisBlobKeySecretName string = blobAccount.outputs.oasisBlobKeySecretName
-output serverBlobContainerName string = blobAccount.outputs.serverBlobContainerName
-output modelsBlobContainerName string = blobAccount.outputs.modelsBlobContainerName
+// output serverBlobContainerName string = blobAccount.outputs.serverBlobContainerName
+// output modelsBlobContainerName string = blobAccount.outputs.modelsBlobContainerName
 
 output aksCluster object = aks.outputs.aksCluster

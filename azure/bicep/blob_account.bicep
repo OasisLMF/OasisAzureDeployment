@@ -101,13 +101,13 @@ resource blobFsNameSecret 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview'
   }
 }
 
-resource serverContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
-  name: '${blobFs.name}/default/${serverContainerName}'
-}
-
-resource modelsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
-  name: '${blobFs.name}/default/${modelsContainerName}'
-}
+// resource serverContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
+//   name: '${blobFs.name}/default/${serverContainerName}'
+// }
+// 
+// resource modelsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
+//   name: '${blobFs.name}/default/${modelsContainerName}'
+// }
 
 resource modelsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
   name: '${blobFs.name}/default/${logsContainerName}'
@@ -115,6 +115,6 @@ resource modelsContainer 'Microsoft.Storage/storageAccounts/blobServices/contain
 
 output oasisBlobNameSecretName string = oasisBlobNameSecretName
 output oasisBlobKeySecretName string = oasisBlobKeySecretName
-output serverBlobContainerName string = serverContainerName
-output modelsBlobContainerName string = modelsContainerName
-output logsBlobContainerName string = logsContainerName
+// output serverBlobContainerName string = serverContainerName
+// output modelsBlobContainerName string = modelsContainerName
+// output logsBlobContainerName string = logsContainerName

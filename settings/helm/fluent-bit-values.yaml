@@ -1,5 +1,16 @@
-# values.yaml for fluent-bit helm chart 
+# values.yaml for fluent-bit helm chart
 # See: https://docs.fluentbit.io/manual/pipeline/outputs/azure_blob
+
+# errors
+#   [error] [output:azure_blob:azure_blob.0] cannot append content to blob
+#   The committed block count cannot exceed the maximum limit of 50,000 blocks.
+#
+#   see: https://github.com/fluent/fluent-bit/issues/2692
+#   Added filter to rotate files by date
+
+#       Tag               kube.<namespace_name>.<pod_name>.<container_name>.<container_id>
+
+
 
 # Enable Fluent Bit as a DaemonSet
 daemonset:
@@ -18,16 +29,66 @@ config:
 
   inputs: |
     [INPUT]
-        Name        tail
-        Path        /var/log/containers/*.log
-        Tag         kube.*
+        Name tail
+        Path /var/log/containers/*.log
+        multiline.parser docker, cri
+        Mem_Buf_Limit 5MB
+        Tag kube.*
+
+  filters: |
+    [FILTER]
+        Name        kubernetes
+        Match       kube.*
+        Kube_URL    https://kubernetes.default.svc:443
+        Kube_CA_File       /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File    /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix    kube.var.log.containers.
+        Merge_Log    On
+        Keep_Log     Off
+        K8S-Logging.Parser On
+        K8S-Logging.Exclude On
+
+    [FILTER]
+        Name        rewrite_tag
+        Match        kube.*
+        Rule         $kubernetes['labels']['app.kubernetes.io/instance'] platform platform.$kubernetes['pod_name'] false
+
+    [FILTER]
+        Name        rewrite_tag
+        Match        kube.*
+        Rule         $kubernetes['labels']['app.kubernetes.io/instance'] models model.$kubernetes['pod_name'] false
+
+    [FILTER]
+        Name                modify
+        Match               *
+        Remove_regex        ^(?!.*\blog\b).*
 
   outputs: |
     [OUTPUT]
         Name        azure_blob
-        Match       *
-        account_name          ${BLOB_ACCOUNT_NAME}
-        shared_key            ${BLOB_ACCOUNT_KEY}
+        Match       model.*
+        account_name          ${BLOB_STORAGE_ACCOUNT}
+        shared_key            ${BLOB_STORAGE_KEY}
+        path                  models
+        container_name        logs
+        auto_create_container on
+        tls                   on
+
+    [OUTPUT]
+        Name        azure_blob
+        Match       platform.*
+        account_name          ${BLOB_STORAGE_ACCOUNT}
+        shared_key            ${BLOB_STORAGE_KEY}
+        path                  platform
+        container_name        logs
+        auto_create_container on
+        tls                   on
+
+    [OUTPUT]
+        Name        azure_blob
+        Match       kube.*
+        account_name          ${BLOB_STORAGE_ACCOUNT}
+        shared_key            ${BLOB_STORAGE_KEY}
         path                  kubernetes
         container_name        logs
         auto_create_container on
