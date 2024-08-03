@@ -20,7 +20,7 @@ daemonset:
 config:
   service: |
     [SERVICE]
-        Flush        1
+        Flush        60
         Log_Level    info
         HTTP_Server    On
         HTTP_Listen    0.0.0.0
@@ -32,7 +32,9 @@ config:
         Name tail
         Path /var/log/containers/*.log
         multiline.parser docker, cri
-        Mem_Buf_Limit 5MB
+        Mem_Buf_Limit 50MB
+        Buffer_Chunk_Size 2MB
+        Buffer_Max_Size   2MB
         Tag kube.*
 
   filters: |
@@ -84,12 +86,12 @@ config:
         auto_create_container on
         tls                   on
 
-    [OUTPUT]
-        Name        azure_blob
-        Match       kube.*
-        account_name          ${BLOB_STORAGE_ACCOUNT}
-        shared_key            ${BLOB_STORAGE_KEY}
-        path                  kubernetes
-        container_name        logs
-        auto_create_container on
-        tls                   on
+#    [OUTPUT]
+#        Name        azure_blob
+#        Match       kube.*
+#        account_name          ${BLOB_STORAGE_ACCOUNT}
+#        shared_key            ${BLOB_STORAGE_KEY}
+#        path                  kubernetes
+#        container_name        logs
+#        auto_create_container on
+#        tls                   on
