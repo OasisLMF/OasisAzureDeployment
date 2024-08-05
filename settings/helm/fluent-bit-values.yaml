@@ -49,20 +49,17 @@ config:
         K8S-Logging.Parser On
         K8S-Logging.Exclude On
 
-# Add timestamp to force blob filename rotation 
     [FILTER]
         Name    lua
         Match   kube.*
         script  /fluent-bit/scripts/filter_tag_time.lua
         call    tag_time
 
-# Select any logs marked as 'platform'
     [FILTER]
         Name        rewrite_tag
         Match        kube.*
         Rule         $kubernetes['labels']['app.kubernetes.io/instance'] platform platform.$kubernetes['pod_name'].$date false
 
-# Select any logs marked as 'model worker'
     [FILTER]
         Name        rewrite_tag
         Match        kube.*
