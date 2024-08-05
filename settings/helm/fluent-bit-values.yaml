@@ -1,20 +1,19 @@
 # values.yaml for fluent-bit helm chart
 # See: https://docs.fluentbit.io/manual/pipeline/outputs/azure_blob
-
-# errors
-#   [error] [output:azure_blob:azure_blob.0] cannot append content to blob
-#   The committed block count cannot exceed the maximum limit of 50,000 blocks.
-#
-#   see: https://github.com/fluent/fluent-bit/issues/2692
-#   Added filter to rotate files by date
-
-#       Tag               kube.<namespace_name>.<pod_name>.<container_name>.<container_id>
-
-
-
 # Enable Fluent Bit as a DaemonSet
+#
 daemonset:
   enabled: true
+
+# custom LUA filter 
+luaScripts:
+  filter_tag_time.lua: |
+    function tag_time(tag, timestamp, record)
+        new_record = record
+        new_record["date"] = os.date("%Y-%m")
+        return 1, timestamp, new_record
+    end
+
 
 # Configuration for Fluent Bit
 config:
@@ -50,20 +49,30 @@ config:
         K8S-Logging.Parser On
         K8S-Logging.Exclude On
 
+# Add timestamp to force blob filename rotation 
+    [FILTER]
+        Name    lua
+        Match   kube.*
+        script  /fluent-bit/scripts/filter_tag_time.lua
+        call    tag_time
+
+# Select any logs marked as 'platform'
     [FILTER]
         Name        rewrite_tag
         Match        kube.*
-        Rule         $kubernetes['labels']['app.kubernetes.io/instance'] platform platform.$kubernetes['pod_name'] false
+        Rule         $kubernetes['labels']['app.kubernetes.io/instance'] platform platform.$kubernetes['pod_name'].$date false
 
+# Select any logs marked as 'model worker'
     [FILTER]
         Name        rewrite_tag
         Match        kube.*
-        Rule         $kubernetes['labels']['app.kubernetes.io/instance'] models model.$kubernetes['pod_name'] false
+        Rule         $kubernetes['labels']['app.kubernetes.io/instance'] models model.$kubernetes['pod_name'].$date false
 
-    [FILTER]
-        Name                modify
-        Match               *
-        Remove_regex        ^(?!.*\blog\b).*
+# uncomment to remove all meta-data (saves space) 
+#    [FILTER]
+#        Name                modify
+#        Match               *
+#        Remove_regex        ^(?!.*\blog\b).*
 
   outputs: |
     [OUTPUT]
@@ -86,6 +95,7 @@ config:
         auto_create_container on
         tls                   on
 
+# Uncomment to store all other container logs 
 #    [OUTPUT]
 #        Name        azure_blob
 #        Match       kube.*
