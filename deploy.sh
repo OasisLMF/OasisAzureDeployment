@@ -724,13 +724,12 @@ case "$deploy_type" in
     echo '  * https://docs.fluentbit.io/manual/pipeline/outputs/azure_blob'
     echo '  * https://github.com/fluent/helm-charts'
 
+    update_kubectl_cluster
     helm repo add fluent https://fluent.github.io/helm-charts
     helm repo update
-    #helm upgrade -i fluent-bit fluent/fluent-bit -f "${SCRIPT_DIR}/settings/helm/fluent-bit-values.yaml"
 
     BLOB_STORAGE_ACCOUNT="$(get_secret oasisblob-name)"
-    TMP_VAR="$(get_secret oasisblob-key)"
-    BLOB_STORAGE_KEY=$(printf '%s' "$TMP_VAR" | sed 's/[&/\]/\\&/g')
+    BLOB_STORAGE_KEY=$(printf '%s' $(get_secret oasisblob-key) | sed 's/[&/\]/\\&/g')
     helm_deploy "${SCRIPT_DIR}/settings/helm/fluent-bit-values.yaml" "fluent/fluent-bit" "fluent-bit"
   ;;
   "api")
