@@ -65,6 +65,11 @@ config:
         Match        kube.*
         Rule         $kubernetes['labels']['app.kubernetes.io/instance'] models model.$kubernetes['pod_name'].$date false
 
+    [FILTER]
+        Name        rewrite_tag
+        Match        kube.*
+        Rule         $kubernetes['labels']['app.kubernetes.io/instance'] .*oasismodel.* model.$kubernetes['pod_name'].$date false
+
 # uncomment to remove all meta-data (saves space) 
 #    [FILTER]
 #        Name                modify
