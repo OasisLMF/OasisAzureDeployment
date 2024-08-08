@@ -5,7 +5,7 @@
 daemonset:
   enabled: true
 
-# custom LUA filter 
+# custom LUA filter
 luaScripts:
   filter_tag_time.lua: |
     function tag_time(tag, timestamp, record)
@@ -68,9 +68,9 @@ config:
     [FILTER]
         Name        rewrite_tag
         Match        kube.*
-        Rule         $kubernetes['labels']['app.kubernetes.io/instance'] .*oasismodel.* model.$kubernetes['pod_name'].$date false
+        Rule         $kubernetes['labels']['app.kubernetes.io/name'] oasis-model model.$kubernetes['pod_name'].$date false
 
-# uncomment to remove all meta-data (saves space) 
+# uncomment to remove all meta-data (saves space)
 #    [FILTER]
 #        Name                modify
 #        Match               *
