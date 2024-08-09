@@ -20,7 +20,7 @@ config:
   service: |
     [SERVICE]
         Flush        60
-        Log_Level    info
+        Log_Level    debug
         HTTP_Server    On
         HTTP_Listen    0.0.0.0
         HTTP_Port      2020
