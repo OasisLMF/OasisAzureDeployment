@@ -10,7 +10,7 @@ luaScripts:
   filter_tag_time.lua: |
     function tag_time(tag, timestamp, record)
         new_record = record
-        new_record["date"] = os.date("%Y-%m")
+        new_record["date"] = os.date("%Y-%m-%d")
         return 1, timestamp, new_record
     end
 
@@ -19,7 +19,7 @@ luaScripts:
 config:
   service: |
     [SERVICE]
-        Flush        60
+        Flush        30
         Log_Level    info
         HTTP_Server    On
         HTTP_Listen    0.0.0.0
