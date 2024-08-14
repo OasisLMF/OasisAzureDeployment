@@ -1,0 +1,108 @@
+# values.yaml for fluent-bit helm chart
+# See: https://docs.fluentbit.io/manual/pipeline/outputs/azure_blob
+# Enable Fluent Bit as a DaemonSet
+#
+daemonset:
+  enabled: true
+
+# custom LUA filter
+luaScripts:
+  filter_tag_time.lua: |
+    function tag_time(tag, timestamp, record)
+        new_record = record
+        new_record["date"] = os.date("%Y-%m-%d")
+        return 1, timestamp, new_record
+    end
+
+
+# Configuration for Fluent Bit
+config:
+  service: |
+    [SERVICE]
+        Flush        30
+        Log_Level    info
+        HTTP_Server    On
+        HTTP_Listen    0.0.0.0
+        HTTP_Port      2020
+        Health_Check On
+
+  inputs: |
+    [INPUT]
+        Name tail
+        Path /var/log/containers/*.log
+        multiline.parser docker, cri
+        Mem_Buf_Limit 50MB
+        Buffer_Chunk_Size 2MB
+        Buffer_Max_Size   2MB
+        Tag kube.*
+
+  filters: |
+    [FILTER]
+        Name        kubernetes
+        Match       kube.*
+        Kube_URL    https://kubernetes.default.svc:443
+        Kube_CA_File       /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File    /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix    kube.var.log.containers.
+        Merge_Log    On
+        Keep_Log     Off
+        K8S-Logging.Parser On
+        K8S-Logging.Exclude On
+
+    [FILTER]
+        Name    lua
+        Match   kube.*
+        script  /fluent-bit/scripts/filter_tag_time.lua
+        call    tag_time
+
+    [FILTER]
+        Name        rewrite_tag
+        Match        kube.*
+        Rule         $kubernetes['labels']['app.kubernetes.io/instance'] platform platform.$kubernetes['pod_name'].$date false
+
+    [FILTER]
+        Name        rewrite_tag
+        Match        kube.*
+        Rule         $kubernetes['labels']['app.kubernetes.io/instance'] models model.$kubernetes['pod_name'].$date false
+
+    [FILTER]
+        Name        rewrite_tag
+        Match        kube.*
+        Rule         $kubernetes['labels']['app.kubernetes.io/name'] oasis-model model.$kubernetes['pod_name'].$date false
+
+# uncomment to remove all meta-data (saves space)
+#    [FILTER]
+#        Name                modify
+#        Match               *
+#        Remove_regex        ^(?!.*\blog\b).*
+
+  outputs: |
+    [OUTPUT]
+        Name        azure_blob
+        Match       model.*
+        account_name          ${BLOB_STORAGE_ACCOUNT}
+        shared_key            ${BLOB_STORAGE_KEY}
+        path                  models
+        container_name        logs
+        auto_create_container on
+        tls                   on
+
+    [OUTPUT]
+        Name        azure_blob
+        Match       platform.*
+        account_name          ${BLOB_STORAGE_ACCOUNT}
+        shared_key            ${BLOB_STORAGE_KEY}
+        path                  platform
+        container_name        logs
+        auto_create_container on
+        tls                   on
+
+#    [OUTPUT]
+#        Name        azure_blob
+#        Match       kube.*
+#        account_name          ${BLOB_STORAGE_ACCOUNT}
+#        shared_key            ${BLOB_STORAGE_KEY}
+#        path                  kubernetes
+#        container_name        logs
+#        auto_create_container on
+#        tls                   on
