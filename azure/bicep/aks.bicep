@@ -5,7 +5,7 @@ param clusterName string
 param location string = resourceGroup().location
 
 @description('Kubernetes version to use')
-param kubernetesVersion string = '1.27.7'
+param kubernetesVersion string = '1.30.3'
 
 @description('The VM Size to use for the platform')
 param platformNodeVm string
@@ -91,6 +91,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
         mode: 'System'
         availabilityZones: availabilityZones
         vnetSubnetID: subnetId
+        enableEncryptionAtHost: true // Enable encryption for temp disks and caches
         nodeLabels: {
           'oasislmf/node-type': 'platform'
         }
@@ -107,6 +108,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
         mode: 'System'
         availabilityZones: availabilityZones
         vnetSubnetID: subnetId
+        enableEncryptionAtHost: true // Enable encryption for temp disks and caches
         nodeLabels: {
           'oasislmf/node-type': 'worker'
         }
@@ -153,6 +155,38 @@ resource symbolicname 'Microsoft.KeyVault/vaults/accessPolicies@2021-11-01-previ
     ]
   }
 }
+
+
+// Define a custom role to restrict command invocation
+resource rbacRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
+  name: 'restrict-command-invoke-role'
+  properties: {
+    roleName: 'Restrict Command Invoke Role'
+    description: 'A custom role to restrict command invocation in AKS.'
+    permissions: [
+      {
+        actions: []
+        notActions: [
+          'Microsoft.ContainerService/managedClusters/commandInvoke/action'
+        ]
+      }
+    ]
+    assignableScopes: [
+      '/subscriptions/{subscription().subscriptionId}'
+    ]
+  }
+}
+
+// Assign the custom role to all users at the subscription level
+resource rbacAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(rbacRole.id, 'subscription-all-users')  // Unique ID for the role assignment
+  properties: {
+    principalId: '*'  // This indicates all users within the subscription
+    roleDefinitionId: rbacRole.id
+    principalType: 'User'
+  }
+}
+
 
 output controlPlaneFQDN string = reference('${clusterName}').fqdn
 output clusterPrincipalID string = aksCluster.properties.identityProfile.kubeletidentity.objectId

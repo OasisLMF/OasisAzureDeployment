@@ -48,7 +48,8 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
       name: 'standard'
       family: 'A'
     }
-    enableSoftDelete: false
+    enableSoftDelete: true
+    softDeleteRetentionInDays: 90 // Enable Soft Delete with a retention period of 90 days
     enabledForDeployment: true
     enabledForDiskEncryption: true
     enabledForTemplateDeployment: true
