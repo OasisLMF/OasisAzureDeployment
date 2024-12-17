@@ -91,6 +91,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
         mode: 'System'
         availabilityZones: availabilityZones
         vnetSubnetID: subnetId
+        enableEncryptionAtHost: true // Enable encryption for temp disks and caches
         nodeLabels: {
           'oasislmf/node-type': 'platform'
         }
@@ -107,6 +108,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
         mode: 'System'
         availabilityZones: availabilityZones
         vnetSubnetID: subnetId
+        enableEncryptionAtHost: true // Enable encryption for temp disks and caches
         nodeLabels: {
           'oasislmf/node-type': 'worker'
         }
