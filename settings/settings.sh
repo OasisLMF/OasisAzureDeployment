@@ -4,13 +4,13 @@ LOCATION="northcentralus"
 
 # DNS name - must be unique within Azure and only contain characters permitted in domain names.
 # Deployment will be accessible at ${DNS_LABEL_NAME}.${LOCATION}.cloudapp.azure.com after deployment.
-DNS_LABEL_NAME=""
+DNS_LABEL_NAME="renre-scale"
 
 # Email to use for letsencrypt certificates
-LETSENCRYPT_EMAIL=""
+LETSENCRYPT_EMAIL="samuel.gamble@oasislmf.org"
 
 # Name of the resource group to deploy to
-RESOURCE_GROUP="oasis-enterprise"
+RESOURCE_GROUP="renre-scale"
 
 # Image build settings - tell pip to trust certificates from pypi.org and files.pythonhosted.org,
 # do no verify them. In case your want to build locally and are behind a corporate proxy.
@@ -18,10 +18,10 @@ RESOURCE_GROUP="oasis-enterprise"
 
 # Set to override path to OasisLMF/OasisPlatform repository with either branch platform-2.0-azure-sprint-2 checked
 # out or platform-2.0 (if previous is merged)
-#OASIS_PLATFORM_DIR=~/git/OasisPlatform/
+OASIS_PLATFORM_DIR=/home/sam/repos/core/kube_oasis
 
 # Set to override path to OasisLMF/OasisPiWind repository
-#OASIS_PIWIND_DIR=~/git/OasisPiWind/
+OASIS_PIWIND_DIR=/home/sam/repos/models/piwind
 
 # Override the standard azure parameter file
 #AZURE_PARAM_FILE="${SCRIPT_DIR}/settings/azure/myparameters.json"

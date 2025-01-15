@@ -415,7 +415,6 @@ case "$deploy_type" in
      --verbose
   ;;
   "db-init")
-
     echo "Generating user passwords..."
     oasis_db_password=$(get_or_generate_secret "oasis-db-password")
     keycloak_db_password=$(get_or_generate_secret "keycloak-db-password")
