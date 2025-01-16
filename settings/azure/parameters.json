@@ -17,7 +17,7 @@
       "value": "Standard_E32_v3"
     },
     "workerNodesMaxCount": {
-      "value": 2
+      "value": 10
     },
     "postgresNodesVm": {
       "value": "Standard_D4s_v3"

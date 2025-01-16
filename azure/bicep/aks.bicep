@@ -15,7 +15,7 @@ param workerNodesVm string
 
 @maxValue(50)
 @description('Max number of nodes to scale up to')
-param workerNodesMaxCount int = 1
+param workerNodesMaxCount int = 10
 
 @description('Availability zones to use for the cluster nodes')
 param availabilityZones array
