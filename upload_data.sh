@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/bash 
+
+## Example     ./update_data.sh /home/sam/repos/models/piwind 'OasisLMF/PiWind/1'
 
 
 LOCAL_PATH=$1
