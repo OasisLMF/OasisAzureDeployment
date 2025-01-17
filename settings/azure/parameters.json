@@ -11,7 +11,7 @@
       "value": "vZ0GrHZosQtxzZSGM7Ww"
     },
     "platformNodeVm": {
-      "value": "Standard_F4s"
+      "value": "Standard_F16"
     },
     "workerNodesVm": {
       "value": "Standard_E32_v3"
@@ -20,7 +20,7 @@
       "value": 50
     },
     "postgresNodesVm": {
-      "value": "Standard_D4s_v3"
+      "value": "Standard_D8s_v3"
     },
     "postgresVersion": {
       "value": "14"

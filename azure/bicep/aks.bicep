@@ -83,7 +83,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
     agentPoolProfiles: [
       {
         name: 'platform'
-        count: 1
+        count: 2
         enableAutoScaling: false
         vmSize: platformNodeVm
         osType: 'Linux'
