@@ -11,7 +11,7 @@
       "value": "vZ0GrHZosQtxzZSGM7Ww"
     },
     "platformNodeVm": {
-      "value": "Standard_F16"
+      "value": "Standard_F16s"
     },
     "workerNodesVm": {
       "value": "Standard_E32_v3"
