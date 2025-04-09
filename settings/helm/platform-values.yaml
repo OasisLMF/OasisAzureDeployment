@@ -6,6 +6,9 @@ images:
     worker_controller:
       image: ${ACR}/coreoasis/worker_controller
       imagePullPolicy: Always
+    worker_internal:
+      image: ${ACR}/coreoasis/model_worker
+      imagePullPolicy: Always
 
 ingress:
   uiHostname: ${DOMAIN}
