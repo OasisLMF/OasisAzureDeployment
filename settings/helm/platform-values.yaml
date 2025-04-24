@@ -6,6 +6,9 @@ images:
     worker_controller:
       image: ${ACR}/coreoasis/worker_controller
       imagePullPolicy: Always
+    worker_internal:
+      image: ${ACR}/coreoasis/model_worker
+      imagePullPolicy: Always
 
 ingress:
   uiHostname: ${DOMAIN}
@@ -86,14 +89,14 @@ azure:
           objectName: keycloak-cert-file
       channel-layer:
         - key: password
-          objectName: celery-redis-password
+          objectName: valkey-auth
 
 databases:
   channel_layer:
-    type: azure_redis
-    name: channel-layer
-    port: 6380
-    ssl: true 
+    type: redis
+    name: valkey
+    port: 6379
+    ssl: false 
   broker:
     type: rabbitmq
     name: broker

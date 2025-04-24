@@ -158,7 +158,7 @@ function helm_deploy() {
 
   echo "Helm chart ${helm_operation}..."
 
-  inputs=""
+  inputs=()
   i=0
   temp_dir=$(mktemp -d)
   temporary_files+=("$temp_dir")
@@ -177,10 +177,10 @@ function helm_deploy() {
         sed "s/\${BLOB_STORAGE_KEY}/${BLOB_STORAGE_KEY}/g" \
         > "$file"
 
-    inputs+=" -f $file"
+    inputs+=("-f" "$file")
   done
 
-  helm $helm_operation $inputs "$3" "$2" "${@:4}"
+  helm $helm_operation "$3" "$2" ${inputs[@]} "${@:4}"
 
   echo "Helm finished"
 }
@@ -569,7 +569,8 @@ case "$deploy_type" in
     aks_identity_client_id="$(get_aks_identity_client_id)"
 
     oasis_database_host="$(get_secret oasis-db-server-host)"
-    celery_redis_host="$(get_secret celery-redis-server-host)"
+    celery_redis_host="valkey"
+    # celery_redis_host="$(get_secret celery-redis-server-host)"
 
     update_kubectl_cluster
     helm_deploy "${SCRIPT_DIR}/settings/helm/platform-values.yaml" "${OASIS_PLATFORM_DIR}/kubernetes/charts/oasis-platform/" "$HELM_PLATFORM_NAME" \
@@ -626,7 +627,9 @@ case "$deploy_type" in
     done
 
     update_kubectl_cluster
-    helm_deploy "${chart_inputs}" "${OASIS_PLATFORM_DIR}/kubernetes/charts/oasis-models/" "$HELM_MODELS_NAME" --set workers.piwind_demo=null
+    helm_deploy "${chart_inputs}" "${OASIS_PLATFORM_DIR}/kubernetes/charts/oasis-models/" "$HELM_MODELS_NAME" \
+      --set workers.piwind_demo_v1=null \
+      --set workers.piwind_demo_v2=null
 
     echo "Waiting for models to be registered: "
     MODELS=$(cat $chart_inputs | grep modelId | sed 's/^[- \t]*modelId:[ ]*\([^ #]*\).*/\1/')
@@ -729,6 +732,7 @@ case "$deploy_type" in
     helm repo update
 
     BLOB_STORAGE_ACCOUNT="$(get_secret oasisblob-name)"
+      \
     BLOB_STORAGE_KEY=$(printf '%s' $(get_secret oasisblob-key) | sed 's/[&/\]/\\&/g')
     helm_deploy "${SCRIPT_DIR}/settings/helm/fluent-bit-values.yaml" "fluent/fluent-bit" "fluent-bit"
   ;;

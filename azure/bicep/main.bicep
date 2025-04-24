@@ -142,20 +142,20 @@ module oasisPostgresqlDb 'postgresql.bicep' = {
 }
 
 
-module celeryRedis 'redis.bicep' = {
-  name: 'celeryRedis'
-  params: {
-    location: location
-    tags: tags
-    keyVaultName: keyVault.outputs.keyVaultName
-    vnetName: vnetName
-    subnetName: subnetName
-  }
+// module celeryRedis 'redis.bicep' = {
+//   name: 'celeryRedis'
+//   params: {
+//     location: location
+//     tags: tags
+//     keyVaultName: keyVault.outputs.keyVaultName
+//     vnetName: vnetName
+//     subnetName: subnetName
+//   }
 
-  dependsOn: [
-    vnet
-  ]
-}
+//   dependsOn: [
+//     vnet
+//   ]
+// }
 
 module storageAccount 'storage_account.bicep' = {
   name: 'storageAccount'
