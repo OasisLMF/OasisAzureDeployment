@@ -732,7 +732,6 @@ case "$deploy_type" in
     helm repo update
 
     BLOB_STORAGE_ACCOUNT="$(get_secret oasisblob-name)"
-      \
     BLOB_STORAGE_KEY=$(printf '%s' $(get_secret oasisblob-key) | sed 's/[&/\]/\\&/g')
     helm_deploy "${SCRIPT_DIR}/settings/helm/fluent-bit-values.yaml" "fluent/fluent-bit" "fluent-bit"
   ;;
