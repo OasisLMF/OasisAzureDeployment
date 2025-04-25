@@ -421,7 +421,6 @@ case "$deploy_type" in
     oasis_db_password=$(get_or_generate_secret "oasis-db-password")
     keycloak_db_password=$(get_or_generate_secret "keycloak-db-password")
     celery_db_password=$(get_or_generate_secret "celery-db-password")
-    valkey_auth=$(get_or_generate_secret "valkey-auth")
 
     echo "Get environment settings..."
     key_vault_name="$(get_key_vault_name)"
@@ -572,13 +571,15 @@ case "$deploy_type" in
 
     oasis_database_host="$(get_secret oasis-db-server-host)"
     platform_inputs="${SCRIPT_DIR}/settings/helm/platform-values.yaml"
+
     if [ "$USE_VALKEY" = "true" ]; then
       platform_inputs+=" ${SCRIPT_DIR}/settings/helm/valkey-values.yaml"
       celery_redis_host="valkey"
+      valkey_auth="$(get_or_generate_secret valkey-auth)"
     else
-      celery_redis_host="$(get_or_generate_secret celery-redis-server-host)" # Changed to g_o_g because if you swap back from valkey will break
+      celery_redis_host="$(get_or_generate_secret celery-redis-server-host)"
+      celery_redis_password="$(get_or_generate_secret celery-redis-password)"
     fi
-    
 
     update_kubectl_cluster
     helm_deploy "${platform_inputs}" "${OASIS_PLATFORM_DIR}/kubernetes/charts/oasis-platform/" "$HELM_PLATFORM_NAME" \
