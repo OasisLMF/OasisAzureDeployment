@@ -63,7 +63,6 @@ SCRIPT_DIR="$(cd $(dirname "$0"); pwd)"
 UPLOAD_MODEL_DATA="${SCRIPT_DIR}/scripts/upload_model_data.sh"
 deploy_type="$1"
 
-
 # Settings file - use env var OE_SETTINGS_FILE to override
 default_settings_file="${SCRIPT_DIR}/settings/settings.sh"
 source "${OE_SETTINGS_FILE:-$default_settings_file}"
@@ -180,7 +179,7 @@ function helm_deploy() {
 
     inputs+=" -f $file"
   done
-  echo "helm $helm_operation $inputs $3 $2 ${@:4}"
+
   helm $helm_operation $inputs "$3" "$2" "${@:4}"
 
   echo "Helm finished"

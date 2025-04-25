@@ -9,3 +9,10 @@ databases:
     name: valkey
     port: 6379
     ssl: false
+
+azure:
+  secretProvider:
+    secrets:
+      channel-layer:
+        - key: password
+          objectName: valkey-auth
