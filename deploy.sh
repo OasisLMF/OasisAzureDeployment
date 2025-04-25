@@ -63,6 +63,7 @@ SCRIPT_DIR="$(cd $(dirname "$0"); pwd)"
 UPLOAD_MODEL_DATA="${SCRIPT_DIR}/scripts/upload_model_data.sh"
 deploy_type="$1"
 
+
 # Settings file - use env var OE_SETTINGS_FILE to override
 default_settings_file="${SCRIPT_DIR}/settings/settings.sh"
 source "${OE_SETTINGS_FILE:-$default_settings_file}"
@@ -158,7 +159,7 @@ function helm_deploy() {
 
   echo "Helm chart ${helm_operation}..."
 
-  inputs=()
+  inputs=""
   i=0
   temp_dir=$(mktemp -d)
   temporary_files+=("$temp_dir")
@@ -177,10 +178,10 @@ function helm_deploy() {
         sed "s/\${BLOB_STORAGE_KEY}/${BLOB_STORAGE_KEY}/g" \
         > "$file"
 
-    inputs+=("-f" "$file")
+    inputs+=" -f $file"
   done
-
-  helm $helm_operation "$3" "$2" ${inputs[@]} "${@:4}"
+  echo "helm $helm_operation $inputs $3 $2 ${@:4}"
+  helm $helm_operation $inputs "$3" "$2" "${@:4}"
 
   echo "Helm finished"
 }
@@ -412,6 +413,7 @@ case "$deploy_type" in
      --parameter "registryName=${acr_name}" \
      --parameter "nodeResourceGroup=${aks_resource_group}" \
      --parameter "currentUserObjectId=${CURRENT_USER_OBJECT_ID}" \
+     --parameter "useValkey=${USE_VALKEY}"
      --verbose
   ;;
   "db-init")
@@ -420,6 +422,7 @@ case "$deploy_type" in
     oasis_db_password=$(get_or_generate_secret "oasis-db-password")
     keycloak_db_password=$(get_or_generate_secret "keycloak-db-password")
     celery_db_password=$(get_or_generate_secret "celery-db-password")
+    valkey_auth=$(get_or_generate_secret "valkey-auth")
 
     echo "Get environment settings..."
     key_vault_name="$(get_key_vault_name)"
@@ -569,11 +572,17 @@ case "$deploy_type" in
     aks_identity_client_id="$(get_aks_identity_client_id)"
 
     oasis_database_host="$(get_secret oasis-db-server-host)"
-    celery_redis_host="valkey"
-    # celery_redis_host="$(get_secret celery-redis-server-host)"
+    platform_inputs="${SCRIPT_DIR}/settings/helm/platform-values.yaml"
+    if [ "$USE_VALKEY" = "true" ]; then
+      platform_inputs+=" ${SCRIPT_DIR}/settings/helm/valkey-values.yaml"
+      celery_redis_host="valkey"
+    else
+      celery_redis_host="$(get_or_generate_secret celery-redis-server-host)" # Changed to g_o_g because if you swap back from valkey will break
+    fi
+    
 
     update_kubectl_cluster
-    helm_deploy "${SCRIPT_DIR}/settings/helm/platform-values.yaml" "${OASIS_PLATFORM_DIR}/kubernetes/charts/oasis-platform/" "$HELM_PLATFORM_NAME" \
+    helm_deploy "${platform_inputs}" "${OASIS_PLATFORM_DIR}/kubernetes/charts/oasis-platform/" "$HELM_PLATFORM_NAME" \
       --set "azure.storageAccounts.oasisfs.accountName=${oasis_fs_account_name}" \
       --set "azure.storageAccounts.oasisfs.accountKey=${oasis_fs_account_key}" \
       --set "azure.storageAccounts.serverblobs.accountName=${oasis_blob_account_name}" \
@@ -625,6 +634,10 @@ case "$deploy_type" in
     for worker in "${SCRIPT_DIR}/settings/helm/workers/"*; do
       chart_inputs+=" $worker"
     done
+
+    if [ $USE_VALKEY = "true"]; then
+      chart_inputs+="${SCRIPT_DIR}/settings/helm/valkey-values.yaml"
+    fi
 
     update_kubectl_cluster
     helm_deploy "${chart_inputs}" "${OASIS_PLATFORM_DIR}/kubernetes/charts/oasis-models/" "$HELM_MODELS_NAME" \

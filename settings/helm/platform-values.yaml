@@ -94,9 +94,9 @@ azure:
 databases:
   channel_layer:
     type: redis
-    name: valkey
+    name: channel-layer
     port: 6379
-    ssl: false 
+    ssl: false
   broker:
     type: rabbitmq
     name: broker

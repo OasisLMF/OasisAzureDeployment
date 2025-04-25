@@ -1,0 +1,11 @@
+images:
+  redis:
+    image: valkey/valkey
+    version: 8.1.1-alpine3.21
+
+databases:
+  channel_layer:
+    type: redis
+    name: valkey
+    port: 6379
+    ssl: false
