@@ -412,7 +412,7 @@ case "$deploy_type" in
      --parameter "registryName=${acr_name}" \
      --parameter "nodeResourceGroup=${aks_resource_group}" \
      --parameter "currentUserObjectId=${CURRENT_USER_OBJECT_ID}" \
-     --parameter "useValkey=${USE_VALKEY}"
+     --parameter "useValkey=${USE_VALKEY}" \
      --verbose
   ;;
   "db-init")
