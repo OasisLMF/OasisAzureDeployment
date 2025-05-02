@@ -74,6 +74,9 @@ param postgresBackupRetentionDays int
 @description('The tier of the particular SKU')
 param postgresServerEdition string
 
+@description('Switches from Redis to Valkey')
+param useValkey bool = false
+
 
 module vnet 'vnet.bicep' = {
   name: 'vnetDeploy'
@@ -142,7 +145,7 @@ module oasisPostgresqlDb 'postgresql.bicep' = {
 }
 
 
-module celeryRedis 'redis.bicep' = {
+module celeryRedis 'redis.bicep' = if (!useValkey) {
   name: 'celeryRedis'
   params: {
     location: location
@@ -226,7 +229,7 @@ module registry 'registry.bicep' = {
   ]
 }
 
-// AzureFiles Storage outputs 
+// AzureFiles Storage outputs
 output oasisFsNameSecretName string = storageAccount.outputs.oasisFsNameSecretName
 output oasisFsKeySecretName string = storageAccount.outputs.oasisFsKeySecretName
 output oasisFileShareName string = storageAccount.outputs.oasisFileShareName
