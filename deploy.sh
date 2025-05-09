@@ -580,6 +580,9 @@ case "$deploy_type" in
       celery_redis_host="$(get_or_generate_secret celery-redis-server-host)"
       celery_redis_password="$(get_or_generate_secret celery-redis-password)"
     fi
+    if [ "$USE_BLOB" = "true" ]; then
+      platform_inputs+=" ${SCRIPT_DIR}/settings/helm/blob-values.yaml"
+    fi
 
     update_kubectl_cluster
     helm_deploy "${platform_inputs}" "${OASIS_PLATFORM_DIR}/kubernetes/charts/oasis-platform/" "$HELM_PLATFORM_NAME" \
@@ -631,12 +634,15 @@ case "$deploy_type" in
     echo "Deploying models..."
 
     chart_inputs="${SCRIPT_DIR}/settings/helm/platform-values.yaml ${SCRIPT_DIR}/settings/helm/models-values.yaml"
+    if [ "$USE_BLOB" = "true" ]; then
+      chart_inputs+=" ${SCRIPT_DIR}/settings/helm/blob-values.yaml"
+    fi
     for worker in "${SCRIPT_DIR}/settings/helm/workers/"*; do
       chart_inputs+=" $worker"
     done
 
-    if [ $USE_VALKEY = "true"]; then
-      chart_inputs+="${SCRIPT_DIR}/settings/helm/valkey-values.yaml"
+    if [ $USE_VALKEY = "true" ]; then
+      chart_inputs+=" ${SCRIPT_DIR}/settings/helm/valkey-values.yaml"
     fi
 
     update_kubectl_cluster

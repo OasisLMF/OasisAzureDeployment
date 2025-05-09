@@ -1,0 +1,16 @@
+volumes:
+  host: null
+  azureFiles: null
+  blobData:
+    sharedFs:
+      name: shared-fs-persistent-storage
+      storage: 1Gi
+
+azure:
+  storage:
+    account: oasisrgazurestorage
+    container: piwind
+    secretName: oasis-blob-account
+
+blobs:
+  enabled: true
