@@ -437,7 +437,6 @@ case "$deploy_type" in
 
 
     if helm status db-init &> /dev/null; then
-
       helm uninstall db-init
     fi
 
@@ -635,8 +634,8 @@ case "$deploy_type" in
       chart_inputs+=" $worker"
     done
 
-    if [ $USE_VALKEY = "true"]; then
-      chart_inputs+="${SCRIPT_DIR}/settings/helm/valkey-values.yaml"
+    if [ $USE_VALKEY = "true" ]; then
+      chart_inputs+=" ${SCRIPT_DIR}/settings/helm/valkey-values.yaml"
     fi
 
     update_kubectl_cluster
