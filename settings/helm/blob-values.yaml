@@ -9,7 +9,7 @@ volumes:
 azure:
   storage:
     account: oasisrgazurestorage
-    container: piwind
+    container: test
     secretName: oasis-blob-account
 
 blobs:
