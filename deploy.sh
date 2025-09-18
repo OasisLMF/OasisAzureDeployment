@@ -595,7 +595,7 @@ case "$deploy_type" in
       --set "databases.channel_layer.host=${celery_redis_host}"
 
     echo "Waiting for controller to become ready..."
-    kubectl wait --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
+    kubectl wait --for=condition=ready pod -l 'app.kubernetes.io/name in (ingress-nginx, traefik)' --timeout=120s
 
     echo "Environment: https://${domain}"
   ;;
