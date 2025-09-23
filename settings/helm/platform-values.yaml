@@ -36,17 +36,20 @@ affinity:
                 - platform
 
 
-ingress-nginx:
-  controller:
-    nodeSelector:
-      oasislmf/node-type: platform
-
-    service:
-      annotations:
-        service.beta.kubernetes.io/azure-dns-label-name: ${DNS_LABEL_NAME}
-
-      # Make nginx log the real client IP
-      externalTrafficPolicy: Local
+traefik:
+  service:
+    annotations:
+      service.beta.kubernetes.io/azure-dns-label-name: ${DNS_LABEL_NAME}
+    externalTrafficPolicy: Local
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: oasislmf/node-type
+            operator: In
+            values:
+            - platform
 
 # Volumes to mount and use within the platform
 volumes:
