@@ -596,18 +596,6 @@ case "$deploy_type" in
 
     echo "Waiting for controller to become ready..."
     kubectl wait --for=condition=ready pod -l 'app.kubernetes.io/name in (ingress-nginx, traefik)' --timeout=120s
-
-
-    # workaround for DNS with traefik
-    #   --fix the DNS is not pointing to the pubic IP 
-    PUBLIC_IP_NAME=$(az network public-ip list --query "[?tags.\"k8s-azure-service\"=='default/platform-traefik'].name" -o tsv)
-    if [ -z "$PUBLIC_IP_NAME" ]; then
-        az network public-ip update \
-          --resource-group "$RESOURCE_GROUP" \
-          --name "$PUBLIC_IP_NAME" \
-          --dns-name sam-dev
-    fi
-
     echo "Environment: https://${domain}"
   ;;
   "summary")
