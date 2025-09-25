@@ -13,7 +13,10 @@ LETSENCRYPT_EMAIL=""
 RESOURCE_GROUP="oasis-enterprise"
 
 # Valkey: needs to be identically 'true' or 'false'
-USE_VALKEY="true"
+USE_VALKEY="false"
+
+# Blobs
+USE_BLOB="true"
 
 # Image build settings - tell pip to trust certificates from pypi.org and files.pythonhosted.org,
 # do no verify them. In case your want to build locally and are behind a corporate proxy.

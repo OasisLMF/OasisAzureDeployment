@@ -579,6 +579,9 @@ case "$deploy_type" in
       celery_redis_host="$(get_or_generate_secret celery-redis-server-host)"
       celery_redis_password="$(get_or_generate_secret celery-redis-password)"
     fi
+    if [ "$USE_BLOB" = "true" ]; then
+      platform_inputs+=" ${SCRIPT_DIR}/settings/helm/blob-values.yaml"
+    fi
 
     update_kubectl_cluster
     helm_deploy "${platform_inputs}" "${OASIS_PLATFORM_DIR}/kubernetes/charts/oasis-platform/" "$HELM_PLATFORM_NAME" \
@@ -629,9 +632,16 @@ case "$deploy_type" in
     echo "Deploying models..."
 
     chart_inputs="${SCRIPT_DIR}/settings/helm/platform-values.yaml ${SCRIPT_DIR}/settings/helm/models-values.yaml"
-    for worker in "${SCRIPT_DIR}/settings/helm/workers/"*; do
-      chart_inputs+=" $worker"
-    done
+    if [ "$USE_BLOB" = "true" ]; then
+      chart_inputs+=" ${SCRIPT_DIR}/settings/helm/blob-values.yaml"
+      for worker in "${SCRIPT_DIR}/settings/helm/blob-workers/"*; do
+        chart_inputs+=" $worker"
+      done
+    else
+      for worker in "${SCRIPT_DIR}/settings/helm/workers/"*; do
+        chart_inputs+=" $worker"
+      done
+    fi
 
     if [ $USE_VALKEY = "true" ]; then
       chart_inputs+=" ${SCRIPT_DIR}/settings/helm/valkey-values.yaml"
@@ -642,17 +652,18 @@ case "$deploy_type" in
       --set workers.piwind_demo_v1=null \
       --set workers.piwind_demo_v2=null
 
-    echo "Waiting for models to be registered: "
-    MODELS=$(cat $chart_inputs | grep modelId | sed 's/^[- \t]*modelId:[ ]*\([^ #]*\).*/\1/')
-
-    for model in $MODELS; do
-      echo -n "$model..."
-      while ! $0 api ls model | grep -qi "$model"; do
-        echo -n "."
-        sleep 1
+    if [ "$USE_BLOB" = "false" ]; then
+      echo "Waiting for models to be registered: "
+      MODELS=$(cat $chart_inputs | grep modelId | sed 's/^[- \t]*modelId:[ ]*\([^ #]*\).*/\1/')
+      for model in $MODELS; do
+        echo -n "$model..."
+        while ! $0 api ls model | grep -qi "$model"; do
+          echo -n "."
+          sleep 1
+        done
+        echo
       done
-      echo
-    done
+    fi
 
     echo "Models deployed"
   ;;
