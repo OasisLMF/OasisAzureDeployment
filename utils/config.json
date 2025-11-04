@@ -1,0 +1,15 @@
+{
+  "resourceGroupName": "blobstorage-dev",
+  "location": "North Central US",
+  "vmName": "vm-linux-dev",
+  "vmSize": "Standard_E16_v3",
+  "osDistribution": "Ubuntu",
+  "osVersion": "22_04-lts-gen2",
+  "adminUsername": "azureuser",
+  "storageAccountName": "mystorageacctoasis",
+  "vnetName": "vnet-dev",
+  "subnetName": "subnet-vm",
+  "nsgName": "nsg-vm",
+  "sshKeyName": "ssh-key-vm",
+  "managedIdentityName": "mi-vm-storage"
+}
