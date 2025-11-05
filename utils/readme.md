@@ -24,14 +24,14 @@ Intended as debugging script to quickly spin up a single VM with attached BlobSt
 - Network Security Group with SSH access from internet
 
 **Two Commands:**
-- `./deploy.sh create` - Creates everything
-- `./deploy.sh delete` - Deletes the entire resource group
+- `./vm_deploy.sh create` - Creates everything
+- `./vm_deploy.sh delete` - Deletes the entire resource group
 
 ## To use this:
 
 1. **Make the script executable:**
    ```bash
-   chmod +x deploy.sh
+   chmod +x vm_deploy.sh
    ```
 
 2. **Install prerequisites:**
@@ -44,7 +44,7 @@ Intended as debugging script to quickly spin up a single VM with attached BlobSt
 
 4. **Deploy:**
    ```bash
-   ./deploy.sh create
+   ./vm_deploy.sh create
    ```
 
 5. **Connect to your VM:**
@@ -54,13 +54,8 @@ Intended as debugging script to quickly spin up a single VM with attached BlobSt
 
 6. **Clean up when done:**
    ```bash
-   ./deploy.sh delete
+   ./vm_deploy.sh delete
    ```
-
-The script includes error handling, colored output, and will show you the SSH connection command when deployment completes. The VM will be able to access the blob storage using its managed identity without any additional configuration.
-
-Would you like me to modify anything or add additional features?
-
 
 
 test bucket access 
