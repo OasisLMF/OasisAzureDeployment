@@ -56,7 +56,7 @@
     },
     "tags": {
       "value": {
-        "oasis-enterprise": true
+        "oasis-enterprise": "true"
       }
     },
     "openHttpForAll": {
