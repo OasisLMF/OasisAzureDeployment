@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+shopt -s inherit_errexit
 
 function usage {
   echo "Usage: $0 <command>"
@@ -346,7 +347,7 @@ function get_acr {
 
 
 function download_ms_cert {
-  cert_url='https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem'
+  cert_url='https://cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem'
   cert_file='/tmp/keycloak-DigiCertRootCA.pem'
   secret_name='keycloak-cert-file'
   key_vault_name="$(get_key_vault_name)"
