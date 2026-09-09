@@ -77,7 +77,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
   tags: tags
   properties: {
     nodeResourceGroup: nodeResourceGroup
-    kubernetesVersion: kubernetesVersion
+    // kubernetesVersion: kubernetesVersion
     dnsPrefix: '${clusterName}-dns'
     enableRBAC: true
     agentPoolProfiles: [
